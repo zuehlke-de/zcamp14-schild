@@ -1,15 +1,14 @@
 package com.zuehlke.zegcamp14tuerschild;
 
 import android.app.Activity;
-import android.app.ActionBar;
 import android.app.Fragment;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.os.Build;
 
 public class MainActivity extends Activity {
 
@@ -19,12 +18,19 @@ public class MainActivity extends Activity {
         setContentView(R.layout.activity_main);
 
         if (savedInstanceState == null) {
-            getFragmentManager().beginTransaction()
-                    .add(R.id.container, new PlaceholderFragment())
-                    .commit();
+            getFragmentManager().beginTransaction().add(R.id.container, new PlaceholderFragment()).commit();
         }
+        
+        RESTManager.getInstance().testGet(this);
     }
 
+    public void onClick(View view) {
+    	Intent intent = new Intent(this, SecondActivity.class);
+    	//EditText editText = (EditText) findViewById(R.id.edit_message);
+    	//String message = editText.getText().toString();
+    	//intent.putExtra(EXTRA_MESSAGE, message);
+    	startActivity(intent);
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {

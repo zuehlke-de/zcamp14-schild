@@ -4,6 +4,8 @@
     android:versionCode="1"
     android:versionName="1.0" >
 
+    <uses-permission android:name="android.permission.INTERNET" />
+
     <uses-sdk
         android:minSdkVersion="18"
         android:targetSdkVersion="18" />
@@ -21,6 +23,10 @@
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+        </activity>
+        <activity
+            android:name="com.zuehlke.zegcamp14tuerschild.SecondActivity"
+            android:label="@string/title_activity_second" >
         </activity>
     </application>
 
