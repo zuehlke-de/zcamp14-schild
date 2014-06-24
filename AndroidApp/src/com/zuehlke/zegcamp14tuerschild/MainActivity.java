@@ -2,16 +2,24 @@ package com.zuehlke.zegcamp14tuerschild;
 
 import android.app.Activity;
 import android.app.Fragment;
+import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothDevice;
+import android.bluetooth.BluetoothManager;
+import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 public class MainActivity extends Activity {
 
+	static BluetoothAdapter mBluetoothAdapter;
+	
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -21,7 +29,30 @@ public class MainActivity extends Activity {
             getFragmentManager().beginTransaction().add(R.id.container, new PlaceholderFragment()).commit();
         }
         
-        RESTManager.getInstance().testGet(this);
+        //RESTManager.getInstance().testGet(this);
+        if (!getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)) {
+            Toast.makeText(this, "BLE NOT SUPPORTED", Toast.LENGTH_SHORT).show();
+            finish();
+        }
+        
+        final BluetoothManager bluetoothManager =
+                (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
+        mBluetoothAdapter = bluetoothManager.getAdapter();
+        
+        if (mBluetoothAdapter == null || !mBluetoothAdapter.isEnabled()) {
+            Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+            startActivityForResult(enableBtIntent, 0);
+        }
+        
+        System.out.println(mBluetoothAdapter);
+        mBluetoothAdapter.startLeScan(new BluetoothAdapter.LeScanCallback() {
+
+			@Override
+			public void onLeScan(BluetoothDevice device, int rssi, byte[] scanRecord) {
+				System.out.println("Device found: "+device.getName());
+			}
+        	
+        });
     }
 
     public void onClick(View view) {
