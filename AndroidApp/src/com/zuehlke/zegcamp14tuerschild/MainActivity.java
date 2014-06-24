@@ -48,8 +48,13 @@ public class MainActivity extends Activity {
         mBluetoothAdapter.startLeScan(new BluetoothAdapter.LeScanCallback() {
 
 			@Override
-			public void onLeScan(BluetoothDevice device, int rssi, byte[] scanRecord) {
-				System.out.println("Device found: "+device.getName());
+			public void onLeScan(final BluetoothDevice device, int rssi, byte[] scanRecord) {
+				runOnUiThread(new Runnable() {
+			           @Override
+			           public void run() {
+				            Toast.makeText(MainActivity.this, device.toString(), Toast.LENGTH_SHORT).show();
+			           }
+			       });
 			}
         	
         });
