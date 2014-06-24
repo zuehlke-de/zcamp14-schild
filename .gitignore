@@ -1,2 +1,3 @@
-AndroidApp/bin/
-AndroidApp/project.properties
+/AndroidApp/bin/
+/AndroidApp/project.properties
+/AndroidApp/gen/
