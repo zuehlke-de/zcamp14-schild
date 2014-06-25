@@ -2,16 +2,21 @@
 #define UPDATE_H
 
 #include <QApplication>
+#include <QStringList>
 
-class Update
+class Update : public QObject
 {
+    Q_OBJECT
+
 public:
     Update();
 
+public slots:
     void ReceiveRoomName(QString roomName);
     void ClearOccupantNames();
     void ReceiveOccupantName(QString occupantName);
 
+public:
     QString getRoomName();
     QStringList getOccupantNames();
 

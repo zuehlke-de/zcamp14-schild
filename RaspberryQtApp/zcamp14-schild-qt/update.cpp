@@ -1,6 +1,9 @@
 #include "update.h"
 #include <QApplication>
 
+#include <iostream>
+
+
 Update::Update()
 {
     m_roomName = "";
@@ -11,10 +14,12 @@ void Update::ReceiveRoomName(QString roomName) {
 }
 
 void Update::ClearOccupantNames() {
+    std::cout << "Update::ClearOccupantNames()" << std::endl;
     m_occupantNames.clear();
 }
 
 void Update::ReceiveOccupantName(QString occupantName) {
+    std::cout << "Update::ReceiveOccupantName()" << std::endl;
     m_occupantNames.append(occupantName);
 }
 
