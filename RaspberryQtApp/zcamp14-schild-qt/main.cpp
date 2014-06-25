@@ -11,12 +11,13 @@ int main(int argc, char *argv[])
 
     QtQuick1ApplicationViewer viewer;
 
+    viewer.rootContext()->setContextProperty("roomName", roomname);
+    viewer.rootContext()->setContextProperty("namesModel", new NamesListModel());
+
     viewer.addImportPath(QLatin1String("modules"));
     viewer.setOrientation(QtQuick1ApplicationViewer::ScreenOrientationAuto);
     viewer.setMainQmlFile(QLatin1String("qrc:///main.qml"));
     viewer.showExpanded();
-    viewer.rootContext()->setContextProperty("roomName", roomname);
-    viewer.rootContext()->setContextProperty("namesModel", new NamesListModel());
 
     return app.exec();
 }
