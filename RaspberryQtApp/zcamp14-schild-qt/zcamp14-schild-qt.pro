@@ -15,7 +15,6 @@ include(qtquick1applicationviewer/qtquick1applicationviewer.pri)
 # Default rules for deployment.
 include(deployment.pri)
 
-HEADERS += \
-    nameslistmodel.h
+HEADERS +=
 
 OTHER_FILES +=
