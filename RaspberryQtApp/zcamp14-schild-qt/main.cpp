@@ -1,6 +1,5 @@
 #include "qtquick1applicationviewer.h"
 #include <QApplication>
-#include "nameslistmodel.h"
 #include <QDeclarativeContext>
 
 const QString roomname = "Raum 1.01";
