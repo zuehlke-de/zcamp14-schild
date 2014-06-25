@@ -1,3 +1,7 @@
 /AndroidApp/bin/
 /AndroidApp/project.properties
 /AndroidApp/gen/
+/LyncAgentServer/LyncAgentServer/bin
+/LyncAgentServer/LyncAgentServer/obj
+/LyncAgentServer/LyncClientAgent/bin
+/LyncAgentServer/LyncClientAgent/obj
