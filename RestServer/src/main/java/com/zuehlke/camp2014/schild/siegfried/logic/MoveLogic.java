@@ -1,6 +1,6 @@
-package com.zuehlke.camp2014.iot.brokers.schild.logic;
+package com.zuehlke.camp2014.schild.siegfried.logic;
 
-import com.zuehlke.camp2014.iot.brokers.schild.domain.Move;
+import com.zuehlke.camp2014.schild.siegfried.domain.Move;
 
 public class MoveLogic {
 

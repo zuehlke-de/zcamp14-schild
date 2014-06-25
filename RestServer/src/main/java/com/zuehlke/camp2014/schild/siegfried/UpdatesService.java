@@ -1,4 +1,4 @@
-package com.zuehlke.camp2014.iot.brokers.schild;
+package com.zuehlke.camp2014.schild.siegfried;
  
 import java.util.List;
 
@@ -11,8 +11,8 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import com.google.common.collect.Lists;
-import com.zuehlke.camp2014.iot.brokers.schild.domain.Update;
-import com.zuehlke.camp2014.iot.brokers.schild.domain.UpdateStatus;
+import com.zuehlke.camp2014.schild.siegfried.domain.Update;
+import com.zuehlke.camp2014.schild.siegfried.domain.UpdateStatus;
 
 @Path("/updates")
 public class UpdatesService {

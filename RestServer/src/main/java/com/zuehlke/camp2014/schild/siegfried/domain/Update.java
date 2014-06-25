@@ -1,4 +1,6 @@
-package com.zuehlke.camp2014.iot.brokers.schild.domain;
+package com.zuehlke.camp2014.schild.siegfried.domain;
+
+import com.google.common.base.Objects;
 
 public class Update {
 	public Update(String updateId, String plateId, String[] names, String status) {
@@ -36,4 +38,13 @@ public class Update {
 	String plateId;
 	String[] names;
 	String status;
+	
+	public String toString() {
+		return Objects.toStringHelper(this)
+				.add("updateId", getUpdateId())
+				.add("plateId", getPlateId())
+				.add("names", getNames().toString())
+				.add("status", getStatus())
+				.toString();
+	}
 }
