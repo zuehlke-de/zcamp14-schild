@@ -10,7 +10,15 @@ public:
 
     void ReceiveRoomName(QString roomName);
     void ClearOccupantNames();
-    void ReceiveOccupantName(QString roomName);
+    void ReceiveOccupantName(QString occupantName);
+
+    QString getRoomName();
+    QStringList getOccupantNames();
+
+private:
+    QString m_roomName;
+    QStringList m_occupantNames;
 };
+
 
 #endif // UPDATE_H
