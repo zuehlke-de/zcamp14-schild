@@ -1,4 +1,4 @@
-package com.zuehlke.camp2014.iot.brokers.schild;
+package com.zuehlke.camp2014.schild.siegfried;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
@@ -6,8 +6,8 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
-import com.zuehlke.camp2014.iot.brokers.schild.domain.Move;
-import com.zuehlke.camp2014.iot.brokers.schild.logic.MoveLogic;
+import com.zuehlke.camp2014.schild.siegfried.domain.Move;
+import com.zuehlke.camp2014.schild.siegfried.logic.MoveLogic;
 
 @Path("/moves")
 public class MoveService {
@@ -26,8 +26,6 @@ public class MoveService {
 		// TODO: Get device id
 		// TODO: Provide payload
 		//Telemetry msg = new Telemetry(new Date(), new Identifier("schild", "TODO"), null);
-		
-		
 		logic.processMoveMessage(move);
 				
 		return move;

@@ -1,23 +1,25 @@
 #include "qtquick1applicationviewer.h"
 #include <QApplication>
 #include <QDeclarativeContext>
+#include "update.h"
 
 const QString roomname = "Raum 1.01";
 
 int main(int argc, char *argv[])
 {
-    QStringList dataList;
-    dataList.append("Anna Anger");
-    dataList.append("Barbara Bauer");
-    dataList.append("Christian Corn");
-    dataList.append("Dennis Dornbusch");
+    Update update;
+    update.ReceiveRoomName("Raum 1.01");
+    update.ReceiveOccupantName("Anna Anger");
+    update.ReceiveOccupantName("Barbara Bauer");
+    update.ReceiveOccupantName("Christian Corn");
+    update.ReceiveOccupantName("Dennis Dornbusch");
 
     QApplication app(argc, argv);
 
     QtQuick1ApplicationViewer viewer;
 
-    viewer.rootContext()->setContextProperty("roomName", roomname);
-    viewer.rootContext()->setContextProperty("namesModel",  QVariant::fromValue(dataList));
+    viewer.rootContext()->setContextProperty("roomName", update.getRoomName());
+    viewer.rootContext()->setContextProperty("namesModel",  QVariant::fromValue(update.getOccupantNames()));
 
     viewer.addImportPath(QLatin1String("modules"));
     viewer.setOrientation(QtQuick1ApplicationViewer::ScreenOrientationAuto);

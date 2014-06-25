@@ -14,7 +14,7 @@
                 </servlet-class>
 		<init-param>
 		     <param-name>com.sun.jersey.config.property.packages</param-name>
-		     <param-value>com.zuehlke.camp2014.iot.brokers.schild</param-value>
+		     <param-value>com.zuehlke.camp2014.schild.siegfried</param-value>
 		</init-param>
 		<init-param>
 			<param-name>com.sun.jersey.api.json.POJOMappingFeature</param-name>
