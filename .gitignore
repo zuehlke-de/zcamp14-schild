@@ -1,3 +1,5 @@
 /AndroidApp/bin/
 /AndroidApp/project.properties
 /AndroidApp/gen/
+
+/RaspberryQtApp/build-zcamp14-schild-qt-*
