@@ -1,5 +1,6 @@
 package com.zuehlke.camp2014.schild.siegfried;
  
+import java.util.Iterator;
 import java.util.List;
 
 import javax.ws.rs.Consumes;
@@ -10,9 +11,19 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import org.elasticsearch.common.base.Function;
+
+import scala.reflect.Manifest;
+
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
+import com.zuehlke.camp2014.iot.core.ComponentFactory;
+import com.zuehlke.camp2014.iot.core.store.DynamoDBStore;
+import com.zuehlke.camp2014.iot.model.DomainObject;
+import com.zuehlke.camp2014.iot.model.DomainObject.*;
+import com.zuehlke.camp2014.iot.model.Identifier;
+import com.zuehlke.camp2014.iot.model.internal.MessageBuffer;
 import com.zuehlke.camp2014.schild.siegfried.domain.Update;
 import com.zuehlke.camp2014.schild.siegfried.domain.UpdateStatus;
 
@@ -34,16 +45,30 @@ public class UpdatesService {
 	@GET
 	@Path("/pending")
 	@Produces(MediaType.APPLICATION_JSON)
-	public Iterable<Update> getPending() {
+	public List<Update> getPending() {
+		DynamoDBStore<Identifier, MessageBuffer> store = new ComponentFactory("camp2014").getMessageBufferStore();
 		
-		return Iterables.filter(updates, new Predicate<Update>() {
-
-			public boolean apply(Update input) {
-				return "pending".equals(input.getStatus());
-			}
-			
-		});
+		List<MessageBuffer> result = store.loadByKey("status", "UNKNOWN");
 		
+		List<Update> response = Lists.newArrayList();
+		
+//		DomainObject.fr
+//		for (MessageBuffer msg: result) {
+//			msg.getDomain()
+//			
+//			response.add(new Update(msg.getSequence(), "TODO", new String[] {"A", "B"}, "TODO"));
+//		}
+//		return response;
+		
+//		return Lists.transform(result, new Function<MessageBuffer, Update>() {
+//
+//			@Override
+//			public Update apply(MessageBuffer input) {
+//				Update result = new Update(input.getMessageId(), "TODO", new String[] {"A", "B"}, "TODO");
+//			}
+//			
+//		});
+		return response;
 	}
 	
 	@PUT
