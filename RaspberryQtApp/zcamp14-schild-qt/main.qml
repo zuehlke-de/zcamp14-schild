@@ -14,16 +14,8 @@ Rectangle {
         y: 20
     }
 
-    ListView {
-        id: names
-        x: 20
-        y: 50
-        width: 110
-        height: 160
-        model: namesModel
-        delegate: Text {
-            text: Name
-        }
+    ListModel {
+
     }
 
     Image {
@@ -33,5 +25,42 @@ Rectangle {
         width: 60
         height: 60
         source: "logo.png"
+    }
+
+    ListView {
+        id: listView1
+        x: 20
+        y: 50
+        width: 110
+        height: 160
+        model: ListModel {
+            ListElement {
+                name: "Anna Anger"
+            }
+
+            ListElement {
+                name: "Barbara Bauer"
+            }
+
+            ListElement {
+                name: "Christian Corn"
+            }
+
+            ListElement {
+                name: "Dennis Dornbusch"
+            }
+        }
+        delegate: Item {
+            width: 300
+            height: 20
+            Row {
+                id: row1
+
+                Text {
+                    text: name
+                    anchors.verticalCenter: parent.verticalLeft
+                }
+            }
+        }
     }
 }
