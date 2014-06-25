@@ -23,7 +23,6 @@ Rectangle {
         model: namesModel
         delegate: Text {
             text: Name
-            anchors.centerIn: parent.left
         }
     }
 
