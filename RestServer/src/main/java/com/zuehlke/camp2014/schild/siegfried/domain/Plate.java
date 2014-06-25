@@ -27,7 +27,7 @@ public class Plate {
 	public String toString() {
 		return Objects.toStringHelper(this)
 		.add("plateId", getPlateId())
-		.add("names", getNames().toString())
+		.add("names", getNames())
 		.toString();
 	}
 }

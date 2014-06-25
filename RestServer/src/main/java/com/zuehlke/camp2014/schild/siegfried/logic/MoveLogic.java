@@ -1,41 +1,41 @@
 package com.zuehlke.camp2014.schild.siegfried.logic;
 
-import java.util.UUID;
+import java.util.List;
 
-import com.zuehlke.camp2014.iot.core.ComponentFactory;
-import com.zuehlke.camp2014.iot.core.store.DynamoDBStore;
-import com.zuehlke.camp2014.iot.model.Identifier;
-import com.zuehlke.camp2014.iot.model.internal.MessageBuffer;
+import org.elasticsearch.common.collect.Lists;
+
 import com.zuehlke.camp2014.schild.siegfried.domain.Move;
 import com.zuehlke.camp2014.schild.siegfried.domain.Plate;
 
 public class MoveLogic {
 
-	public PlateRepo plateRepo = new PlateRepoMemoryOnly();
-	
+	private static int moveIdCounter = 0;
+	public static List<Plate> plates = Lists.newArrayList();
+	{
+		plates.add(new Plate("42", Lists.<String>newArrayList()));
+		plates.add(new Plate("43", Lists.<String>newArrayList()));
+	}
+
 	public void processMoveMessage(Move move) {
 		System.out.println("Process message "+move);
-		
-		for (Plate plate : plateRepo.getPlates()) {
+
+		for (Plate plate : plates) {
 			if (plate.getPlateId().equals(move.getPlateId())) {
 				if (!plate.getNames().contains(move.getUserId())) {
 					
-					DynamoDBStore<Identifier, MessageBuffer> store = new ComponentFactory("camp2014").getMessageBufferStore();
-					
-					MessageBuffer messageBuffer = new MessageBuffer();
-					
+					System.out.println(plate.toString());
+					// Update the in-memory plate object
 					plate.getNames().add(move.getUserId());
-					System.out.println("Updated plate: "+plate.toString());
-				}
-				
-			}
-		}
-		
-		// TODO: Get domain object
-		// TODO: Implement logic
-		move.setMoveId(UUID.randomUUID().toString());
-			
-		
-	}
+					System.out.println(plate.toString());
+					
+					UpdatesLogic.triggerUpdate(plate);
 
+					move.setMoveId(new Integer(moveIdCounter++).toString());
+
+				}
+			}
+
+		}
+
+	}
 }
