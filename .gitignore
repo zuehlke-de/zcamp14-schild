@@ -3,5 +3,6 @@
 /AndroidApp/gen/
 /LyncAgentServer/LyncAgentServer/bin
 /LyncAgentServer/LyncAgentServer/obj
+/RaspberryQtApp/build-zcamp14-schild-qt-*
 /LyncAgentServer/LyncClientAgent/bin
 /LyncAgentServer/LyncClientAgent/obj

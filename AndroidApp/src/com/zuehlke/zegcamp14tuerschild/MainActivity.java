@@ -18,46 +18,50 @@ import android.widget.Toast;
 
 public class MainActivity extends Activity {
 
-	static BluetoothAdapter mBluetoothAdapter;
-	
+    static BluetoothAdapter mBluetoothAdapter;
+    
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
+ 
         if (savedInstanceState == null) {
             getFragmentManager().beginTransaction().add(R.id.container, new PlaceholderFragment()).commit();
         }
-        
-        //RESTManager.getInstance().testGet(this);
+         
+        /*//RESTManager.getInstance().testGet(this);
         if (!getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)) {
             Toast.makeText(this, "BLE NOT SUPPORTED", Toast.LENGTH_SHORT).show();
             finish();
         }
-        
+         
         final BluetoothManager bluetoothManager =
                 (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
         mBluetoothAdapter = bluetoothManager.getAdapter();
-        
+         
         if (mBluetoothAdapter == null || !mBluetoothAdapter.isEnabled()) {
             Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
             startActivityForResult(enableBtIntent, 0);
         }
-        
+         
         System.out.println(mBluetoothAdapter);
         mBluetoothAdapter.startLeScan(new BluetoothAdapter.LeScanCallback() {
-
-			@Override
-			public void onLeScan(final BluetoothDevice device, int rssi, byte[] scanRecord) {
-				runOnUiThread(new Runnable() {
-			           @Override
-			           public void run() {
-				            Toast.makeText(MainActivity.this, device.toString(), Toast.LENGTH_SHORT).show();
-			           }
-			       });
-			}
-        	
-        });
+ 
+            @Override
+            public void onLeScan(final BluetoothDevice device, int rssi, byte[] scanRecord) {
+                runOnUiThread(new Runnable() {
+                       @Override
+                       public void run() {
+                            Toast.makeText(MainActivity.this, device.toString(), Toast.LENGTH_SHORT).show();
+                       }
+                   });
+            }
+             
+        });*/
+        
+    	Intent intent = new Intent(this, CommunicationService.class);
+    	this.startService(intent);
+        
     }
 
     public void onClick(View view) {
@@ -66,6 +70,7 @@ public class MainActivity extends Activity {
     	//String message = editText.getText().toString();
     	//intent.putExtra(EXTRA_MESSAGE, message);
     	startActivity(intent);
+
     }
 
     @Override

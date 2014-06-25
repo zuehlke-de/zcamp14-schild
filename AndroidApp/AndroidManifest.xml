@@ -32,6 +32,9 @@
             android:name="com.zuehlke.zegcamp14tuerschild.SecondActivity"
             android:label="@string/title_activity_second" >
         </activity>
+        <service
+            android:name=".CommunicationService"
+            android:exported="false" />
     </application>
 
 </manifest>
