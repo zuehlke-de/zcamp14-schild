@@ -1,4 +1,6 @@
-package com.zuehlke.camp2014.iot.brokers.schild.domain;
+package com.zuehlke.camp2014.schild.siegfried.domain;
+
+import com.google.common.base.Objects;
 
 public class Move {
 	public Move() {
@@ -36,6 +38,10 @@ public class Move {
 	String plateId;
 	
 	public String toString() {
-		return userId + ", "+plateId;
+		return Objects.toStringHelper(this)
+				.add("moveId", getMoveId())
+				.add("userId", getUserId())
+				.add("plateId", getPlateId())
+				.toString();
 	}
 }

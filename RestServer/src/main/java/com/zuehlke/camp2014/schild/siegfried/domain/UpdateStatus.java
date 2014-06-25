@@ -1,4 +1,6 @@
-package com.zuehlke.camp2014.iot.brokers.schild.domain;
+package com.zuehlke.camp2014.schild.siegfried.domain;
+
+import com.google.common.base.Objects;
 
 public class UpdateStatus {
 	public UpdateStatus(String status) {
@@ -15,4 +17,10 @@ public class UpdateStatus {
 	}
 
 	String status;
+	
+	public String toString() {
+		return Objects.toStringHelper(this)
+				.add("status", getStatus())
+				.toString();
+	}
 }
