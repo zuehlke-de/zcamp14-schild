@@ -176,13 +176,12 @@ public class CommunicationService extends Service {
     				updateRoomNameDisplay(maxEntry.getKey());
 
             	}
-				// TODO: PUT users/xxxx/location
 				Handler handler = new Handler(Looper.getMainLooper());
 				handler.post(new Runnable() {
 
 					@Override
 					public void run() {
-						if (MainActivity.longRoomName != null && MainActivity.longRoomName.length() > 5) {
+						if (MainActivity.longRoomName != null && MainActivity.longRoomName.length() > 5 && MainActivity.userName != null && MainActivity.userName.length() > 0) {
 							String plateId = MainActivity.longRoomName.substring(5);
 					    	try {
 			                	RESTManager.getInstance().requestSetLocation(CommunicationService.this, MainActivity.userName, Integer.parseInt(plateId));

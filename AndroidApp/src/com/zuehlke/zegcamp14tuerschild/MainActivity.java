@@ -36,7 +36,7 @@ public class MainActivity extends Activity {
 	        if (intent.getAction().equals(UPDATE_ROOM_NAME)) {
 	            String roomName = intent.getStringExtra(EXTRA_ROOM_NAME);
 	            TextView textView = (TextView) findViewById(R.id.roomName);
-	            roomName = "Raum 42";
+	            roomName = "Raum 43"; // TODO: remove
 	            textView.setText(roomName);
 	            longRoomName = roomName;
 	        }

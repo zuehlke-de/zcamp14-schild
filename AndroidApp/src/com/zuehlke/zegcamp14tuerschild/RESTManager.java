@@ -21,7 +21,7 @@ public class RESTManager {
 	
 	//private final String baseURL = "http://camp14loc.apiary-mock.com";
     //private final String baseURL = "http://192.168.20.101:8080/siegfried/rest";
-    private final String baseURL = "http://default-environment-dmzmmhs5kp.elasticbeanstalk.com";
+    private final String baseURL = "http://default-environment-dmzmmhs5kp.elasticbeanstalk.com/rest";
     
 	private static RESTManager instance;
 	private AsyncHttpClient httpClient;
@@ -81,10 +81,10 @@ public class RESTManager {
 			e1.printStackTrace();
 		}
 		
-		Log.d(TAG, "PUT "+url+" "+payload.toString());
+		Log.d(TAG, "POST "+url+" "+payload.toString());
 
 		try {
-			httpClient.put(context, url, new StringEntity(payload.toString()), "application/json", new JsonHttpResponseHandler() {
+			httpClient.post(context, url, new StringEntity(payload.toString()), "application/json", new JsonHttpResponseHandler() {
 				
 				@Override
 				public void onSuccess(int statusCode, Header[] headers,	JSONObject response) {
