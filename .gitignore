@@ -6,3 +6,5 @@
 /RaspberryQtApp/build-zcamp14-schild-qt-*
 /LyncAgentServer/LyncClientAgent/bin
 /LyncAgentServer/LyncClientAgent/obj
+LyncAgentServer/LyncAgentServer/LyncAgentServer.csproj.user
+LyncAgentServer/LyncAgentServer.v11.suo
