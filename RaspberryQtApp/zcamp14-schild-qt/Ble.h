@@ -22,6 +22,7 @@ class Ble : public QObject {
 
   private:
     int counter_;
+    int roomname_;
 };
 
 
