@@ -43,16 +43,6 @@
         android:text="room name"
         android:textAppearance="?android:attr/textAppearanceLarge" />
 
-    <TextView
-        android:id="@+id/textView3"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignLeft="@+id/textView2"
-        android:layout_below="@+id/userName"
-        android:layout_marginTop="38dp"
-        android:text="Current location:"
-        android:textAppearance="?android:attr/textAppearanceSmall" />
-
     <Button
         android:id="@+id/button1"
         android:layout_width="wrap_content"
@@ -73,5 +63,15 @@
         android:layout_marginTop="28dp"
         android:text="Move here"
         android:onClick="moveToCurrentRoom" />
+
+    <TextView
+        android:id="@+id/textView3"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/textView2"
+        android:layout_below="@+id/userId"
+        android:layout_marginTop="52dp"
+        android:text="Current location:"
+        android:textAppearance="?android:attr/textAppearanceSmall" />
 
 </RelativeLayout>
