@@ -1,11 +1,17 @@
 package com.zuehlke.camp2014.schild.siegfried;
 
+import java.util.Date;
+
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
+import com.zuehlke.camp2014.iot.core.ComponentFactory;
+import com.zuehlke.camp2014.iot.core.store.KafkaMessageWriter;
+import com.zuehlke.camp2014.iot.model.Identifier;
+import com.zuehlke.camp2014.iot.model.internal.Telemetry;
 import com.zuehlke.camp2014.schild.siegfried.domain.Move;
 import com.zuehlke.camp2014.schild.siegfried.logic.MoveLogic;
 
@@ -25,7 +31,15 @@ public class MoveService {
 		
 		// TODO: Get device id
 		// TODO: Provide payload
-		//Telemetry msg = new Telemetry(new Date(), new Identifier("schild", "TODO"), null);
+		
+		/*
+		KafkaMessageWriter writer = new ComponentFactory("id").newMessageInboxWriter(true);
+		Identifier identifier = new Identifier("schild", "TODO");
+		Telemetry msg = new Telemetry(new Date(), identifier, null, null);
+		
+		writer.save(identifier, msg);
+		*/
+		
 		logic.processMoveMessage(move);
 				
 		return move;

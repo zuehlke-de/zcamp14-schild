@@ -3,3 +3,10 @@
 /AndroidApp/gen/
 
 /RaspberryQtApp/build-zcamp14-schild-qt-*
+StreamProcessing/.metadata
+*.class
+/LyncAgentServer/LyncAgentServer/bin
+/LyncAgentServer/LyncAgentServer/obj
+/LyncAgentServer/LyncClientAgent/bin                                                                                                                
+/LyncAgentServer/LyncClientAgent/obj 
+/RaspberryQtApp/zcamp14-schild-qt/zcamp14-schild-qt.pro.user.*
