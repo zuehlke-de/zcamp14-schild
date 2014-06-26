@@ -14,6 +14,7 @@ Rectangle {
     Rectangle {
         width: 320
         height: 50
+        y: 5
 
         Text {
             id: raumname
@@ -36,7 +37,7 @@ Rectangle {
     ListView {
         id: names
         x: 10
-        y: 50
+        y: 60
         width: 110
         height: 160
         model: namesModel
@@ -55,8 +56,8 @@ Rectangle {
 
     Image {
         id: image1
-        x: 270
-        y: 0
+        x: 261
+        y: 7
         width: 50
         height: 50
         source: "logo.png"
