@@ -16,20 +16,22 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
 public class MainActivity extends Activity {
 	
-	public final static String EXTRA_ROOM_NAME = "com.zuehlke.zegcamp14tuerschild.ROOM_NAME";
+	public static final String EXTRA_ROOM_NAME = "com.zuehlke.zegcamp14tuerschild.ROOM_NAME";
 	public static final String UPDATE_ROOM_NAME = "com.zuehlke.zegcamp14tuerschild.UPDATE_ROOM_NAME";
+	public static short roomId;
 
 	private BroadcastReceiver bReceiver = new BroadcastReceiver() {
 	    @Override
 	    public void onReceive(Context context, Intent intent) {
 	        if (intent.getAction().equals(UPDATE_ROOM_NAME)) {
 	            String roomName = intent.getStringExtra(EXTRA_ROOM_NAME);
-	            TextView textView = (TextView) findViewById(R.id.room_name);
+	            TextView textView = (TextView) findViewById(R.id.roomName);
 	            textView.setText(roomName);
 	        }
 	    }
@@ -114,6 +116,13 @@ public class MainActivity extends Activity {
             View rootView = inflater.inflate(R.layout.fragment_main, container, false);
             return rootView;
         }
+    }
+    
+    public void moveToCurrentRoom(View view) {
+    	EditText editText = (EditText) findViewById(R.id.userId);
+    	String userId = editText.getText().toString();
+    	
+        // TODO: POST /moves
     }
 
 }
