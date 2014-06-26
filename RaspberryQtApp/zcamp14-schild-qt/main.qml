@@ -14,14 +14,14 @@ Rectangle {
     Rectangle {
         width: 320
         height: 50
-        color: "black"
+        y: 5
 
         Text {
             id: raumname
             font.pixelSize: 32
             font.family: zuehlkeBold.name
             font.bold: true
-            color: "white"
+            color: "#ff830a"
             height: 50
             x: 9
             y: 7
@@ -37,7 +37,7 @@ Rectangle {
     ListView {
         id: names
         x: 10
-        y: 50
+        y: 60
         width: 110
         height: 160
         model: namesModel
@@ -56,8 +56,8 @@ Rectangle {
 
     Image {
         id: image1
-        x: 270
-        y: 0
+        x: 261
+        y: 7
         width: 50
         height: 50
         source: "logo.png"

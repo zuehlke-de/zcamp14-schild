@@ -13,6 +13,9 @@ namespace LyncClientAgent
 {
     public class LyncLocationSetter
     {
+        private const string URL = "http://zcamp14-brunhilde.zuehlke.ws:80/location?username={0}";
+        private const string LyncNote = "Hier ist mein Schild: {0}";
+
         private Thread _worker;
         private string _lastLocation;
 
@@ -23,11 +26,10 @@ namespace LyncClientAgent
                 Self self = LyncClient.GetClient().Self;
                 var list = new List<KeyValuePair<PublishableContactInformationType, object>>();
                 list.Add(new KeyValuePair<PublishableContactInformationType, object>(PublishableContactInformationType.LocationName, location));
-                list.Add(new KeyValuePair<PublishableContactInformationType, object>(PublishableContactInformationType.PersonalNote, location));
+                list.Add(new KeyValuePair<PublishableContactInformationType, object>(PublishableContactInformationType.PersonalNote, string.Format(LyncNote, location)));
                 self.EndPublishContactInformation(self.BeginPublishContactInformation(list, null, null));
                 Console.WriteLine("Setting Location: {0}", location);
                 _lastLocation = location;
-
             }
             catch (Exception ex)
             {
@@ -46,10 +48,10 @@ namespace LyncClientAgent
             while (true)
             {
                 Thread.Sleep(1000);
-                UserLocation loc = GetUserLocation();
-                if (loc != null && loc.Location != _lastLocation)
+                UserLocation location = GetUserLocation();
+                if (location != null && location.Location != _lastLocation)
                 {
-                    SetLyncLocation(loc.Location);
+                    SetLyncLocation(location.Location);
                 }
             }
         }
@@ -60,10 +62,10 @@ namespace LyncClientAgent
             {
                 var user = System.Security.Principal.WindowsIdentity.GetCurrent();
                 string userName = user.Name.Substring(user.Name.LastIndexOf('\\') + 1);
-                var req = WebRequest.CreateHttp("http://zcamp14-brunhilde.zuehlke.ws:80/location?username=" + userName);
-                var response = req.GetResponse().GetResponseStream();
-                StreamReader rd = new StreamReader(response);
-                return JsonConvert.DeserializeObject<UserLocation>(rd.ReadToEnd());
+                var request = WebRequest.CreateHttp(string.Format(URL, userName));
+                var response = request.GetResponse().GetResponseStream();
+                StreamReader responseReader = new StreamReader(response);
+                return JsonConvert.DeserializeObject<UserLocation>(responseReader.ReadToEnd());
             }
             catch (WebException ex)
             {

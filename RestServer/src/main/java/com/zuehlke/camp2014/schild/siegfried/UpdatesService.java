@@ -1,6 +1,5 @@
 package com.zuehlke.camp2014.schild.siegfried;
  
-import java.util.Iterator;
 import java.util.List;
 
 import javax.ws.rs.Consumes;
@@ -13,61 +12,56 @@ import javax.ws.rs.core.Response;
 
 import org.elasticsearch.common.base.Function;
 
-import scala.reflect.Manifest;
-
-import com.google.common.base.Predicate;
-import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.zuehlke.camp2014.iot.core.ComponentFactory;
 import com.zuehlke.camp2014.iot.core.store.DynamoDBStore;
-import com.zuehlke.camp2014.iot.model.DomainObject;
-import com.zuehlke.camp2014.iot.model.DomainObject.*;
 import com.zuehlke.camp2014.iot.model.Identifier;
 import com.zuehlke.camp2014.iot.model.internal.MessageBuffer;
 import com.zuehlke.camp2014.schild.siegfried.domain.Update;
 import com.zuehlke.camp2014.schild.siegfried.domain.UpdateStatus;
+import com.zuehlke.camp2014.schild.siegfried.logic.UpdatesLogic;
 
 @Path("/updates")
 public class UpdatesService {
  
-	public List<Update> updates = Lists.newArrayList();
-	{
-		updates.add(new Update("1", "42", new String[] {"Dieter", "Detlef"}, "pending"));
-		updates.add(new Update("2", "43", new String[] {"Carlo"}, "pending"));
-	}
-	
 	@GET
 	@Path("/")
 	public List<Update> getAll() {
-		return Lists.newArrayList(updates);
+		return Lists.newArrayList(UpdatesLogic.updates);
 	}
 	
 	@GET
 	@Path("/pending")
 	@Produces(MediaType.APPLICATION_JSON)
 	public List<Update> getPending() {
-		DynamoDBStore<Identifier, MessageBuffer> store = new ComponentFactory("camp2014").getMessageBufferStore();
-		
-		List<MessageBuffer> result = store.loadByKey("status", "UNKNOWN");
 		
 		List<Update> response = Lists.newArrayList();
+
+		/* Getting updates from the cloud */
+		DynamoDBStore<Identifier, MessageBuffer> store = new ComponentFactory(IdGenerator.COMPONENT_ID).getMessageBufferStore();
+		final List<MessageBuffer> messages = store.loadByKey("status", "pending");
+		Function<MessageBuffer, Update> convertMessageBufferToUpdate = new Function<MessageBuffer, Update>() {
+			@Override
+			public Update apply(MessageBuffer input) {
+				return new Update(
+						new Long(input.getSequence()).toString(), 
+						input.message().payload().getDefaultString("plateId", "No value"),
+						input.getMessage().payload().getStringValues("names"),
+						input.getStatus());
+			}
+		};
 		
-//		DomainObject.fr
-//		for (MessageBuffer msg: result) {
-//			msg.getDomain()
-//			
-//			response.add(new Update(msg.getSequence(), "TODO", new String[] {"A", "B"}, "TODO"));
-//		}
-//		return response;
+		for (MessageBuffer msg : messages) {
+			response.add(convertMessageBufferToUpdate.apply(msg));
+		}
 		
-//		return Lists.transform(result, new Function<MessageBuffer, Update>() {
-//
-//			@Override
-//			public Update apply(MessageBuffer input) {
-//				Update result = new Update(input.getMessageId(), "TODO", new String[] {"A", "B"}, "TODO");
+		/* Using memory storage */
+//		for (Update update : UpdatesLogic.updates) {
+//			if (update.getStatus().equals("pending")) {
+//				response.add(update);
 //			}
-//			
-//		});
+//		}
+		
 		return response;
 	}
 	

@@ -7,6 +7,7 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
+import com.google.common.base.Preconditions;
 import com.zuehlke.camp2014.schild.siegfried.domain.UpdateLocation;
 import com.zuehlke.camp2014.schild.siegfried.logic.LocationLogic;
 
@@ -21,8 +22,12 @@ public class UsersService {
 	@Produces(MediaType.APPLICATION_JSON)
 	public UpdateLocation updateLocation(@PathParam("userId") String userId, UpdateLocation updateLocation) {
 		
-		locationLogic.processLocationUpdate(userId, updateLocation);
-				
+		Preconditions.checkNotNull(userId, "No userId provided");
+		updateLocation.setUserId(userId);
+		
+		/* Bypass kafka */
+		Siegfried.messageListenerDoorplate.processLocationUpdate(updateLocation);
+		
 		return updateLocation;
 	}
 }

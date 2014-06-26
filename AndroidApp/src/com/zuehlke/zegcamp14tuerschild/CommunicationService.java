@@ -1,10 +1,18 @@
 package com.zuehlke.zegcamp14tuerschild;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.UUID;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import android.app.Service;
 import android.bluetooth.BluetoothAdapter;
@@ -23,6 +31,8 @@ import android.os.Looper;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
+import com.zuehlke.zegcamp14tuerschild.UpdateManager.RequestUpdateDataCallback;
+
 public class CommunicationService extends Service {
 
     private BluetoothManager mBluetoothManager;
@@ -33,7 +43,7 @@ public class CommunicationService extends Service {
     private BluetoothGattCharacteristic configCharacteristic;
     private BluetoothGattCharacteristic revisionNumberCharacteristic;
     private BluetoothGattCharacteristic personCharacteristic;
-
+    
     //private String mBluetoothDeviceAddress = "6c00e78a-1b9c-4330-8731-54eb46af7c9f";
     private String doorPlateServiceUUID = "13370000-4200-1000-8000-00805f9b34fb";
     private String configCharacteristicUUID = "13370000-4201-1000-8000-00805f9b34fb";
@@ -41,6 +51,11 @@ public class CommunicationService extends Service {
     private String personCharacteristicUUID = "13370000-4203-1000-8000-00805f9b34fb";
     
     private short doorPlateID;
+    private int doorPlateRevisionNumber;
+    private LinkedList<String> namesToWrite = new LinkedList<String>();
+    private int BTLE_WRITE_FLAG = 0;
+    private static final int BTLE_WRITE_OK = 0;
+    private static final int BTLE_WRITE_ERROR = 1;
 
     //private String mBluetoothDeviceAddress = "ffffffff-ffff-ffff-ffff-fffffffffff0";
     
@@ -172,7 +187,7 @@ public class CommunicationService extends Service {
 			List<UUID> scannedUUIDs = CommunicationService.this.parseUUIDs(scanRecord);
 			//Log.i(TAG, "Devices found: "+scannedUUIDs);
 			for (UUID uuid : scannedUUIDs) {
-				if (uuid.toString().equals(doorPlateServiceUUID)) {
+				if (uuid.toString().equals(doorPlateServiceUUID) && device.getName().equals("rpi-kahe")) {
 					updateRoomNameDisplay(device.getName());
 
 					Log.i(TAG, "Device selected: "+uuid+" ("+device.getName()+") with RSSI "+rssi);
@@ -199,6 +214,47 @@ public class CommunicationService extends Service {
 	
     };
     
+    private void writeNamesToConnectedPlate() {
+    	if(BTLE_WRITE_FLAG == BTLE_WRITE_OK) {
+    		if(namesToWrite.isEmpty()) {
+    			revisionNumberCharacteristic.setValue(doorPlateRevisionNumber, BluetoothGattCharacteristic.FORMAT_UINT32, 0);
+    			mBluetoothGatt.writeCharacteristic(revisionNumberCharacteristic);
+    		}
+    		else {
+    			//namesToWrite.pop()
+    			String name = namesToWrite.pop();
+    			System.out.println("Write person "+name);
+    			try {
+					personCharacteristic.setValue(name.getBytes("ASCII"));
+				} catch (UnsupportedEncodingException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+    			mBluetoothGatt.writeCharacteristic(personCharacteristic);
+    		}
+    	}
+    	else {
+    		closeConnection();
+    	}
+    }
+    
+    private void closeConnection() {
+    	mBluetoothDevice = null;
+        
+        Handler handler = new Handler(Looper.getMainLooper());
+		handler.post(new Runnable() {
+
+			@Override
+			public void run() {
+                mBluetoothGatt.close();
+
+                //mBluetoothAdapter = mBluetoothManager.getAdapter();
+				//mBluetoothAdapter.startLeScan(bleScanCallback);
+			}
+			
+		});
+    }
+    
     private final BluetoothGattCallback mGattCallback = new BluetoothGattCallback() {
     	
         @Override
@@ -216,7 +272,7 @@ public class CommunicationService extends Service {
                 //intentAction = ACTION_GATT_DISCONNECTED;
                 //mConnectionState = STATE_DISCONNECTED;
                 Log.i(TAG, "Disconnected from GATT server.");
-                mBluetoothDevice = null;
+                closeConnection();
                 //scanLeDevice(true);
                 
                 
@@ -262,6 +318,24 @@ public class CommunicationService extends Service {
                     	}
                     	// Read revision number
                     	gatt.readCharacteristic(configCharacteristic);
+                    	/*ByteBuffer buffer = ByteBuffer.allocate(2);
+            			buffer.putShort(Short.reverseBytes((short)42));
+            			
+            			byte[] id = buffer.array();
+            			byte[] roomName = "YAY! SCHILD".getBytes();
+            			
+            			ByteArrayOutputStream outputStream = new ByteArrayOutputStream( );
+            			try {
+							outputStream.write(id);
+	             			outputStream.write(roomName);
+						} catch (IOException e) {
+							e.printStackTrace();
+						}   
+
+            			byte payload[] = outputStream.toByteArray();
+            			
+            			configCharacteristic.setValue(payload);
+            			gatt.writeCharacteristic(configCharacteristic);*/
                 	}
                 	
                 			
@@ -298,22 +372,60 @@ public class CommunicationService extends Service {
                 BluetoothGattCharacteristic characteristic,
                 int status) {
         	
+        	//status = BluetoothGatt.GATT_SUCCESS;
+        	//characteristic = configCharacteristic;
+        	
         	if (status == BluetoothGatt.GATT_SUCCESS) {
         		if (characteristic == configCharacteristic) {
                 	Log.i(TAG, "config read: " + characteristic.getStringValue(0));
-                	// TODO: parse data
-                	// doorPlateID = ...
+                	
+                	byte[] payload = characteristic.getValue();
+                	byte[] idPayload = {payload[0], payload[1]};
+                	doorPlateID = ByteBuffer.wrap(idPayload).order(ByteOrder.LITTLE_ENDIAN).getShort();
+        			
                 	gatt.readCharacteristic(revisionNumberCharacteristic);
             	}
             	if (characteristic == revisionNumberCharacteristic) {
-            		long doorPlateRevisionNumber = characteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_UINT32, 0);
-                	Log.i(TAG, "revision number read: " + doorPlateRevisionNumber);
-                	// TODO: if doorPlateRevisionNumber < my currently saved revision number for that room
-                	// write update to door plate
+            		final int connectedDoorPlateRevisionNumber = characteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_UINT32, 0);
+                	Log.i(TAG, "revision number read: " + connectedDoorPlateRevisionNumber);
+                	
+                	//Looper.prepare();
+                	Handler handler = new Handler(Looper.getMainLooper());
+    				handler.post(new Runnable() {
+
+    					@Override
+    					public void run() {
+    						Log.d(TAG, "Doorplate id: "+doorPlateID);
+    	                	UpdateManager.getInstance().getUpdateDataForPlate(doorPlateID, new RequestUpdateDataCallback() {
+    							@Override
+    							public void onSuccess(JSONObject object) {
+    								try {
+    									if(object.getInt("updateId") > connectedDoorPlateRevisionNumber) {
+    										JSONArray names = object.getJSONArray("names");
+    										doorPlateRevisionNumber = object.getInt("updateId");
+    										for(int i=0;i<names.length();i++) {
+    											namesToWrite.add(names.getString(i));
+    										}
+    										writeNamesToConnectedPlate();
+    									}
+    									else {
+    										closeConnection();
+    									}
+    								} catch (JSONException e) {
+    									e.printStackTrace();
+    								}
+    							}
+    	                	});
+    					}
+    					
+    				});
+
+                	
             	}
             }
         	else {
         		Log.i(TAG, "read unsuccessful: " + status);
+        		
         	}
         }
 
@@ -325,28 +437,31 @@ public class CommunicationService extends Service {
 			if (status == BluetoothGatt.GATT_SUCCESS) {
         		if (characteristic == configCharacteristic) {
                 	Log.i(TAG, "config write successful");
+                	//closeConnection();
             	}
         		else if (characteristic == revisionNumberCharacteristic) {
                 	Log.i(TAG, "revision number write successful");
                 	// TODO: PUT /updates/xxxx/status
+                	closeConnection();
             	}
         		else if (characteristic == personCharacteristic) {
                 	Log.i(TAG, "person write successful");
+                	writeNamesToConnectedPlate();
             	} 
 			}
 			else {
         		if (characteristic == configCharacteristic) {
                 	Log.i(TAG, "config write unsuccessful");
-                	// TODO: close connection?
+                	closeConnection();
             	}
         		else if (characteristic == revisionNumberCharacteristic) {
                 	Log.i(TAG, "revision number write unsuccessful");
-                	// TODO: close connection?
+                	closeConnection();
                 	// TODO: repeat later
             	}
         		else if (characteristic == personCharacteristic) {
                 	Log.i(TAG, "person write unsuccessful");
-                	// TODO: close connection?
+                	BTLE_WRITE_FLAG = BTLE_WRITE_ERROR;
             	} 
 			}
 		}  
@@ -363,8 +478,5 @@ public class CommunicationService extends Service {
 	    intent.putExtra(MainActivity.EXTRA_ROOM_NAME, roomName);
 	    LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
 	}
-	
-	private long getRevisionNumberFromDoorPlate() {
-		return 0;
-	}
+
 }
