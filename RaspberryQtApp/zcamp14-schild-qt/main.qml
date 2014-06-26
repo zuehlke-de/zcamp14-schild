@@ -5,9 +5,10 @@ Rectangle {
     width: 320
     height: 240
 
+    property alias roomNameText : raumname.text
+
     Text {
         id: raumname
-        text: roomName
         font.bold: true
         font.pixelSize: 18
         x: 20
@@ -21,6 +22,7 @@ Rectangle {
         width: 110
         height: 160
         model: namesModel
+
         delegate: Text {
             text: display
         }
