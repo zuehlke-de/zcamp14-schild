@@ -14,14 +14,13 @@ Rectangle {
     Rectangle {
         width: 320
         height: 50
-        color: "black"
 
         Text {
             id: raumname
             font.pixelSize: 32
             font.family: zuehlkeBold.name
             font.bold: true
-            color: "white"
+            color: "#ff830a"
             height: 50
             x: 9
             y: 7
