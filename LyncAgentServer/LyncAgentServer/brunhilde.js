@@ -42,30 +42,11 @@ function queryAndSendLocation(username, response) {
                 console.log("Location not availabe for user: " + username);
                 response.send(404);
             } else {
-                var username = innerData.hits.hits[0]._source.senderId;
-                try {
-                    var plateId = JSON.parse(innerData.hits.hits[0]._source.payload).plateId;
-                } catch (err) {
-                    console.log("****####ERROR####*****\nplateId data is no valid JSON: (" + err + ")\n****####ERROR####*****");
-                }
-                console.log("received query response: " + JSON.stringify(innerData));
-                    translatePlateIdAndSendLocation(username, plateId, response);
-                
+                console.log(innerData);
+                response.send(200, { 'username': username, 'location': innerData.hits.hits[0]._source.name });
+
             }
         }
     });
-    function translatePlateIdAndSendLocation(username, plateId, response) {
-        var url = util.format(conf.translatePlateUrl,plateId);
-
-        rest.get(url, function (error, innerData) {
-            var location = "unknown location: plateId " + plateId;
-            if (innerData.found) {
-                location = innerData._source.name;
-            }
-            response.send(200,{ 'username': username,'location': location});
-        });
-
-    }
-    
 }
 

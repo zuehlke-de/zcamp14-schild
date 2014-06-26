@@ -1,19 +1,19 @@
 {
    "port":80,
    "searchUrl": "http://ec2-54-74-5-94.eu-west-1.compute.amazonaws.com:9200/db/_search",
-   "translatePlateUrl": "http://ec2-54-74-5-94.eu-west-1.compute.amazonaws.com:9200/db/room/%s",
+   "translatePlateUrl": "http://ec2-54-74-5-94.eu-west-1.compute.amazonaws.com:9200/db/location/%s",
    "queryString":{
       "query":{
          "bool":{
             "must":[
-               { "term": {"telemetryMessage.senderId":"%s"} }
+               { "term": {"location.persons":"%s"} }
             ]
          }
       },
       "from":0,
       "size":1,
       "sort":[
-			  { "timestamp": {"order":"desc"}  }
+			  
       ],
       "facets":{ }
    }
