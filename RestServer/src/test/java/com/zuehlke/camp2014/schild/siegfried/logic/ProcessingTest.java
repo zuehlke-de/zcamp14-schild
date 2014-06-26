@@ -1,4 +1,4 @@
-package com.zuehlke.doorplate.streamprocessing;
+package com.zuehlke.camp2014.schild.siegfried.logic;
 
 import java.util.List;
 import java.util.Map;
@@ -16,7 +16,8 @@ import org.junit.Before;
 import org.junit.Test;
 
 import com.google.gson.Gson;
-import com.zuehlke.camp2014.iot.brokers.schild.domain.Move;
+import com.zuehlke.camp2014.schild.siegfried.domain.Move;
+import com.zuehlke.camp2014.schild.siegfried.logic.MessageListenerDoorplate;
 
 public class ProcessingTest extends Assert {
 	
