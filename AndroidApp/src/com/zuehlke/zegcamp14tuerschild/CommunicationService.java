@@ -2,6 +2,7 @@ package com.zuehlke.zegcamp14tuerschild;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.ArrayList;
@@ -223,7 +224,12 @@ public class CommunicationService extends Service {
     			//namesToWrite.pop()
     			String name = namesToWrite.pop();
     			System.out.println("Write person "+name);
-    			personCharacteristic.setValue(name);
+    			try {
+					personCharacteristic.setValue(name.getBytes("ASCII"));
+				} catch (UnsupportedEncodingException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
     			mBluetoothGatt.writeCharacteristic(personCharacteristic);
     		}
     	}

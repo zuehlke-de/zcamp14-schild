@@ -19,7 +19,10 @@ public class RESTManager {
 
     private final static String TAG = RESTManager.class.getSimpleName();
 	
-	private final String baseURL = "http://camp14loc.apiary-mock.com";
+	//private final String baseURL = "http://camp14loc.apiary-mock.com";
+    //private final String baseURL = "http://192.168.20.101:8080/siegfried/rest";
+    private final String baseURL = "http://default-environment-dmzmmhs5kp.elasticbeanstalk.com";
+    
 	private static RESTManager instance;
 	private AsyncHttpClient httpClient;
 	
