@@ -20,6 +20,7 @@ Rectangle {
             id: raumname
             font.pixelSize: 32
             font.family: zuehlkeBold.name
+            font.bold: true
             color: "white"
             height: 50
             x: 9
