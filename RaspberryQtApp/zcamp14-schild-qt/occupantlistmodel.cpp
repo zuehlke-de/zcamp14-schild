@@ -28,9 +28,9 @@ void OccupantListModel::addName(QString name) {
 
 void OccupantListModel::clearNames() {
     int numberOfNamesBeforeClearing = stringList.count();
-    emit beginRemoveRows(QModelIndex(), 0, numberOfNamesBeforeClearing);
+    beginRemoveRows(QModelIndex(), 0, numberOfNamesBeforeClearing);
     stringList.clear();
-    emit endRemoveRows();
+    endRemoveRows();
 }
 
 QHash<int, QByteArray> OccupantListModel::roleNames() const {
