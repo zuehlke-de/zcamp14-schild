@@ -20,8 +20,9 @@ int main(int argc, char *argv[])
     update.ReceiveOccupantName("Dennis Dornbusch");
 
     Ble *ble = new Ble();
-    QObject::connect(ble, SIGNAL(occupantNamesInvalidated()), &update, SLOT(ClearOccupantNames()));
+    QObject::connect(ble, SIGNAL(roomNameUpdate(QString)), &update, SLOT(ReceiveRoomName(QString)));
     QObject::connect(ble, SIGNAL(occupantNameUpdate(QString)), &update, SLOT(ReceiveOccupantName(QString)));
+    QObject::connect(ble, SIGNAL(occupantNamesInvalidated()), &update, SLOT(ClearOccupantNames()));
 
     QtQuick1ApplicationViewer viewer;
 
