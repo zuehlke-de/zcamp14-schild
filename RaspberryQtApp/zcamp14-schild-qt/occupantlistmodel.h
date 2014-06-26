@@ -25,7 +25,6 @@ public slots:
     void ReceiveOccupantName(QString occupantName);
 
 protected:
-     QHash<int, QByteArray> roleNames() const;
 
 private:
     QStringList stringList;

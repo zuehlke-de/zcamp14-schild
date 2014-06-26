@@ -14,7 +14,7 @@ QVariant OccupantListModel::data(const QModelIndex &index, int role) const {
     if (index.row() >= stringList.size())
         return QVariant();
 
-    if (role == NameRole)
+    if (role >= 0)
         return stringList.at(index.row());
     else
         return QVariant();
@@ -31,12 +31,6 @@ void OccupantListModel::clearNames() {
     beginRemoveRows(QModelIndex(), 0, numberOfNamesBeforeClearing);
     stringList.clear();
     endRemoveRows();
-}
-
-QHash<int, QByteArray> OccupantListModel::roleNames() const {
-    QHash<int, QByteArray> roles;
-    roles[NameRole] = "name";
-    return roles;
 }
 
 
