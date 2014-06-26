@@ -52,10 +52,6 @@ public class ProcessingTest extends Assert {
 		System.out.println(target.path("db/room/3342").request().put(Entity.json("{\"name\": \"Chagall\",\"plateId\":\"3342\",\"persons\": [\"hinz\",\"kunz\"]}")));
 		System.out.println(target.path("db/room/3343").request().put(Entity.json("{\"name\": \"Miro\",\"plateId\":\"3343\",\"persons\": []}")));
 		
-//		System.out.println(target.path("db/telemetrymessage").queryParam("parent", "1").request().post(Entity.json("{\"payload\": \"[{'id':'mfu', 'name':'Masanori Fujita'}, {'id':'sat', 'name':'Michael Sattler'}]\"," +
-//				"\"senderId\": \"somebody\"," +
-//				"\"timestamp\": \"2014/06/25 16:10:00\"}")));
-		
 		listener = new MessageListenerDoorplate();
 		Thread.sleep(1500L);
 	}
@@ -68,7 +64,8 @@ public class ProcessingTest extends Assert {
 		System.out.println(target.path("db/device/2340").request().delete());
 		System.out.println(target.path("db/room/3342").request().delete());
 		System.out.println(target.path("db/room/3343").request().delete());
-		System.out.println(target.path("db/telemetrymessage/_query").queryParam("q", "senderId:somebody").request().delete());
+		System.out.println(target.path("db/room/3342").request().delete());
+		System.out.println(target.path("db/location/3343").request().delete());
 
 		target = null;
 		listener = null;
@@ -104,9 +101,7 @@ public class ProcessingTest extends Assert {
 		Gson gson = new Gson();
 		Map jsonMap = gson.fromJson(responseBody, Map.class);
 		System.out.println(jsonMap);
-//		System.out.println("Hits: " + ((Map) jsonMap.get("hits")).get("total"));
 		List hits =  (List) ((Map) jsonMap.get("hits")).get("hits");
-//		System.out.println("Hits array: " + hits);
 		assertTrue(hits.size() >= 1);
 		Map source = (Map) ((Map) hits.get(0)).get("_source");
 		String doorPlateId = (String) source.get("plateId");

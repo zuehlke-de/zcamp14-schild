@@ -113,7 +113,7 @@ public class MessageListenerDoorplate {
 		}
 		Map roomMap = gson.fromJson(roomJSON, Map.class);
 		List persons = (List) roomMap.get("persons");
-		return new Update(null, (String) roomMap.get("plateId"), (String[]) persons.toArray(new String[persons.size()]), null);
+		return new Update(null, (String) roomMap.get("plateId"), persons, null);
 	}
 	
 	private void fireUpdatesForOldAndNewRoom(Update oldRoom, Update newRoom) {
