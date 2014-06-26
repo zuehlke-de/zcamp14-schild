@@ -82,6 +82,10 @@ public class ProcessingTest extends Assert {
 		move.setPlateId("3343");
 		System.out.println("Processing move");
 		listener.processMove(move);
+		
+		try {
+			Thread.sleep(1500L);
+		} catch (InterruptedException e) {}
     	
 		assertPersonInRoom("kunz", "3342");
 		assertPersonInRoom("hinz", "3343");
@@ -91,11 +95,11 @@ public class ProcessingTest extends Assert {
 
 	private void assertPersonInRoom(String person, String doorPlateSerial) {
 		Response response = target.path("db/room/_search").request().post(Entity.json("{\"query\":{\"bool\":{\"must\":[{\"term\":{\"room.persons\":\"" + person + "\"}}]}}}"));
-		assertPersonCheckedIn(response, person);
+		assertRoomNumberEquals(response, doorPlateSerial);
 	}
 
 	@SuppressWarnings("rawtypes")
-	private void assertPersonCheckedIn(Response response, String name) {
+	private void assertRoomNumberEquals(Response response, String roomNumber) {
 		String responseBody = response.readEntity(String.class);
 		Gson gson = new Gson();
 		Map jsonMap = gson.fromJson(responseBody, Map.class);
@@ -105,15 +109,15 @@ public class ProcessingTest extends Assert {
 //		System.out.println("Hits array: " + hits);
 		assertTrue(hits.size() >= 1);
 		Map source = (Map) ((Map) hits.get(0)).get("_source");
-		List personsList = (List) source.get("persons");
-//		System.out.println("Payload: " + payloadArray);
-		assertTrue(personsList.contains(name));
+		String doorPlateId = (String) source.get("plateId");
+		assertEquals(roomNumber, doorPlateId);
 	}
 
-	public void testProcessLocationUpdate() {
+//	@Test
+//	public void testProcessLocationUpdate() {
 //		UpdateLocation update = new UpdateLocation();
-//		update.setPlateId("43");
-//		update.setUserId("sat");
+//		update.setPlateId("3343");
+//		update.setUserId("hinz");
 //		
 //		System.out.println("Processing location update");
 //		
@@ -122,15 +126,10 @@ public class ProcessingTest extends Assert {
 //		assertPersonCurrentlyInRoom(update.getUserId(), update.getPlateId());
 //		
 //		System.out.println("Location update processed");
-	}
+//	}
 
 	private void assertPersonCurrentlyInRoom(String person, String doorPlateSerial) {
-		Response response = target.path("db/telemetrymessage/_search").request().post(Entity.json("{\"query\": {" +
-				"\"bool\": {\"must\": [" +
-				"{\"has_parent\" : {\"parent_type\" :\"device\", \"query\" : {\"match\" : {\"serialnumber\" : \"" + doorPlateSerial + "\"}}} }," +
-				"{\"range\" : {\"timestamp\" : {\"gt\" : \"2014/06/25 16:10:00\"}}}]}}}"));
-		System.out.println(response);
-		fail("Not yet implemented");
-//		assertPersonCheckedIn(response, person);
+		Response response = target.path("db/location/_search").request().post(Entity.json("{\"query\":{\"bool\":{\"must\":[{\"term\":{\"location.persons\":\"" + person + "\"}}]}}}"));
+		assertRoomNumberEquals(response, person);
 	}
 }
