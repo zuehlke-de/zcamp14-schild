@@ -2,5 +2,8 @@
     <qresource prefix="/">
         <file>main.qml</file>
         <file>logo.png</file>
+        <file>fonts/AAZuehlke.ttf</file>
+        <file>fonts/AAZuehlke-Bold.ttf</file>
+        <file>fonts/AAZuehlkeMedium.ttf</file>
     </qresource>
 </RCC>
