@@ -227,6 +227,26 @@ public class CommunicationService extends Service {
     			mBluetoothGatt.writeCharacteristic(personCharacteristic);
     		}
     	}
+    	else {
+    		closeConnection();
+    	}
+    }
+    
+    private void closeConnection() {
+    	mBluetoothDevice = null;
+        
+        Handler handler = new Handler(Looper.getMainLooper());
+		handler.post(new Runnable() {
+
+			@Override
+			public void run() {
+                mBluetoothGatt.close();
+
+                //mBluetoothAdapter = mBluetoothManager.getAdapter();
+				//mBluetoothAdapter.startLeScan(bleScanCallback);
+			}
+			
+		});
     }
     
     private final BluetoothGattCallback mGattCallback = new BluetoothGattCallback() {
@@ -246,7 +266,7 @@ public class CommunicationService extends Service {
                 //intentAction = ACTION_GATT_DISCONNECTED;
                 //mConnectionState = STATE_DISCONNECTED;
                 Log.i(TAG, "Disconnected from GATT server.");
-                mBluetoothDevice = null;
+                closeConnection();
                 //scanLeDevice(true);
                 
                 
@@ -296,7 +316,7 @@ public class CommunicationService extends Service {
             			buffer.putShort(Short.reverseBytes((short)42));
             			
             			byte[] id = buffer.array();
-            			byte[] roomName = "BESTES SCHILD".getBytes();
+            			byte[] roomName = "YAY! SCHILD".getBytes();
             			
             			ByteArrayOutputStream outputStream = new ByteArrayOutputStream( );
             			try {
@@ -382,6 +402,9 @@ public class CommunicationService extends Service {
     										}
     										writeNamesToConnectedPlate();
     									}
+    									else {
+    										closeConnection();
+    									}
     								} catch (JSONException e) {
     									e.printStackTrace();
     								}
@@ -396,6 +419,7 @@ public class CommunicationService extends Service {
             }
         	else {
         		Log.i(TAG, "read unsuccessful: " + status);
+        		
         	}
         }
 
@@ -407,10 +431,12 @@ public class CommunicationService extends Service {
 			if (status == BluetoothGatt.GATT_SUCCESS) {
         		if (characteristic == configCharacteristic) {
                 	Log.i(TAG, "config write successful");
+                	//closeConnection();
             	}
         		else if (characteristic == revisionNumberCharacteristic) {
                 	Log.i(TAG, "revision number write successful");
                 	// TODO: PUT /updates/xxxx/status
+                	closeConnection();
             	}
         		else if (characteristic == personCharacteristic) {
                 	Log.i(TAG, "person write successful");
@@ -420,11 +446,11 @@ public class CommunicationService extends Service {
 			else {
         		if (characteristic == configCharacteristic) {
                 	Log.i(TAG, "config write unsuccessful");
-                	// TODO: close connection?
+                	closeConnection();
             	}
         		else if (characteristic == revisionNumberCharacteristic) {
                 	Log.i(TAG, "revision number write unsuccessful");
-                	// TODO: close connection?
+                	closeConnection();
                 	// TODO: repeat later
             	}
         		else if (characteristic == personCharacteristic) {
