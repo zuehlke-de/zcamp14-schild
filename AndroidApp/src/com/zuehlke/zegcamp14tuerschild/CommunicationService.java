@@ -245,7 +245,7 @@ public class CommunicationService extends Service {
         // New services discovered
         public void onServicesDiscovered(BluetoothGatt gatt, int status) {
             if (status == BluetoothGatt.GATT_SUCCESS) {
-                Log.i(TAG, "onServicesDiscovered received: " + status + "#services: " + gatt.getServices().size());
+                Log.i(TAG, "onServicesDiscovered received: " + status + " #services: " + gatt.getServices().size());
                 for (BluetoothGattService service : gatt.getServices()) {
                 	if (service.getUuid().toString().equals(doorPlateServiceUUID)) {
                 		// Save characteristics
@@ -312,6 +312,9 @@ public class CommunicationService extends Service {
                 	// write update to door plate
             	}
             }
+        	else {
+        		Log.i(TAG, "read unsuccessful: " + status);
+        	}
         }
 
 		@Override

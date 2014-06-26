@@ -27,7 +27,7 @@ public class MainActivity extends Activity {
 	private BroadcastReceiver bReceiver = new BroadcastReceiver() {
 	    @Override
 	    public void onReceive(Context context, Intent intent) {
-	        if(intent.getAction().equals(UPDATE_ROOM_NAME)) {
+	        if (intent.getAction().equals(UPDATE_ROOM_NAME)) {
 	            String roomName = intent.getStringExtra(EXTRA_ROOM_NAME);
 	            TextView textView = (TextView) findViewById(R.id.room_name);
 	            textView.setText(roomName);
