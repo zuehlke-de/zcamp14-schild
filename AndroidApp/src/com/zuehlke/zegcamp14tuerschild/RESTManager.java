@@ -9,6 +9,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.content.Context;
+import android.os.Looper;
 import android.util.Log;
 
 import com.loopj.android.http.AsyncHttpClient;
@@ -18,7 +19,10 @@ public class RESTManager {
 
     private final static String TAG = RESTManager.class.getSimpleName();
 	
-	private final String baseURL = "http://camp14loc.apiary-mock.com";
+	//private final String baseURL = "http://camp14loc.apiary-mock.com";
+    //private final String baseURL = "http://192.168.20.101:8080/siegfried/rest";
+    private final String baseURL = "http://default-environment-dmzmmhs5kp.elasticbeanstalk.com";
+    
 	private static RESTManager instance;
 	private AsyncHttpClient httpClient;
 	
@@ -103,6 +107,7 @@ public class RESTManager {
 		//Header[] headers = {new BasicHeader("Content-Type", "application/json")};
 		String url = baseURL+"/updates/pending";
 		Log.d(TAG, "GET "+url);
+		
 		httpClient.get(url, new JsonHttpResponseHandler() {
 
 			@Override
@@ -110,7 +115,16 @@ public class RESTManager {
 				Log.d(TAG, response.toString());
 				UpdateManager.getInstance().handleUpdate(response);
 				callbacks.onSuccess(response);
-			}			
+			}
+
+			@Override
+			public void onFailure(int statusCode, Header[] headers,
+					String responseString, Throwable throwable) {
+				Log.d(TAG, throwable.getLocalizedMessage());
+				Log.d(TAG, responseString);
+			}	
+			
+			
 		});
 	}
 	

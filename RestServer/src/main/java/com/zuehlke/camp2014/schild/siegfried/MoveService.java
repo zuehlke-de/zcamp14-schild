@@ -29,9 +29,6 @@ public class MoveService {
 		// TODO: Send to queue
 		System.out.println("TODO: Send move to kafka: "+move.toString());
 		
-		// TODO: Get device id
-		// TODO: Provide payload
-		
 		/*
 		KafkaMessageWriter writer = new ComponentFactory("id").newMessageInboxWriter(true);
 		Identifier identifier = new Identifier("schild", "TODO");
@@ -40,7 +37,7 @@ public class MoveService {
 		writer.save(identifier, msg);
 		*/
 		
-		logic.processMoveMessage(move);
+		Siegfried.messageListenerDoorplate.processMove(move);
 				
 		return move;
 	}

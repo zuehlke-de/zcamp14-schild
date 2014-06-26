@@ -38,7 +38,7 @@ public class UpdatesService {
 		List<Update> response = Lists.newArrayList();
 
 		/* Getting updates from the cloud */
-		DynamoDBStore<Identifier, MessageBuffer> store = new ComponentFactory("camp2014").getMessageBufferStore();
+		DynamoDBStore<Identifier, MessageBuffer> store = new ComponentFactory(IdGenerator.COMPONENT_ID).getMessageBufferStore();
 		final List<MessageBuffer> messages = store.loadByKey("status", "pending");
 		Function<MessageBuffer, Update> convertMessageBufferToUpdate = new Function<MessageBuffer, Update>() {
 			@Override
