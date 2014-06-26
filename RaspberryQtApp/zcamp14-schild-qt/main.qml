@@ -5,14 +5,10 @@ Rectangle {
     width: 320
     height: 240
 
-    Component.onCompleted: {
-        console.log("Roomname: " + roomName)
-        console.log("Names: " + namesModel)
-    }
+    property alias roomNameText : raumname.text
 
     Text {
         id: raumname
-        text: roomName
         font.bold: true
         font.pixelSize: 18
         x: 20
@@ -26,8 +22,9 @@ Rectangle {
         width: 110
         height: 160
         model: namesModel
+
         delegate: Text {
-            text: modelData
+            text: display
         }
     }
 

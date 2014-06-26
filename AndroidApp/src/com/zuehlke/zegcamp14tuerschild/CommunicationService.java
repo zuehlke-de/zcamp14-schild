@@ -1,5 +1,7 @@
 package com.zuehlke.zegcamp14tuerschild;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.ArrayList;
@@ -30,8 +32,8 @@ public class CommunicationService extends Service {
     private Handler mHandler = new Handler();
     private boolean mScanning = false;
     
-    private String mBluetoothDeviceAddress = "6c00e78a-1b9c-4330-8731-54eb46af7c9f";
-    //private String mBluetoothDeviceAddress = "13370000-4200-1000-8000-00805f9b34fb";
+    //private String mBluetoothDeviceAddress = "6c00e78a-1b9c-4330-8731-54eb46af7c9f";
+    private String mBluetoothDeviceAddress = "13370000-4200-1000-8000-00805f9b34fb";
     //private String mBluetoothDeviceAddress = "ffffffff-ffff-ffff-ffff-fffffffffff0";
     
     //UUID=13370000-4201-1000-8000-00805f9b34fb
@@ -239,10 +241,29 @@ public class CommunicationService extends Service {
                 Log.i(TAG, "onServicesDiscovered received: " + status);
                 for(BluetoothGattService service : gatt.getServices()) {
                 	for(BluetoothGattCharacteristic characteristic :service.getCharacteristics()) {
-                		//if(characteristic.getUuid().toString().equals("13370000-4201-1000-8000-00805f9b34fb")) {
-                		if(characteristic.getUuid().toString().equals("35c7560e-0fa4-4802-bdc7-7e68f22a4bef")) {
+                		if(characteristic.getUuid().toString().equals("13370000-4201-1000-8000-00805f9b34fb")) {
+                		//if(characteristic.getUuid().toString().equals("35c7560e-0fa4-4802-bdc7-7e68f22a4bef")) {
                 			Log.i(TAG, "perform read on characteristic: "+characteristic.getProperties());
-                			gatt.readCharacteristic(characteristic);
+                			//gatt.readCharacteristic(characteristic);
+                			
+                			ByteBuffer buffer = ByteBuffer.allocate(2);
+                			buffer.putShort(Short.reverseBytes((short)1));
+                			
+                			byte[] id = buffer.array();
+                			byte[] roomName = "Super Raum".getBytes();
+                			
+                			ByteArrayOutputStream outputStream = new ByteArrayOutputStream( );
+                			try {
+								outputStream.write(id);
+		             			outputStream.write(roomName);
+							} catch (IOException e) {
+								e.printStackTrace();
+							}   
+
+                			byte payload[] = outputStream.toByteArray();
+                			
+                			characteristic.setValue(payload);
+                			gatt.writeCharacteristic(characteristic);
                 		}
                 	}
                 }
@@ -264,6 +285,15 @@ public class CommunicationService extends Service {
                 //broadcastUpdate(ACTION_DATA_AVAILABLE, characteristic);
             }
         }
+
+		@Override
+		public void onCharacteristicWrite(BluetoothGatt gatt,
+				BluetoothGattCharacteristic characteristic, int status) {
+			// TODO Auto-generated method stub
+        	Log.i(TAG, "characteristic write status:"+status);
+		}
+        
+        
     };
 
 	@Override

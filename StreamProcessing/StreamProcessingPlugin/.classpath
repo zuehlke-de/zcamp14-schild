@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="src" path="test"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.7"/>
+	<classpathentry kind="lib" path="jaxrs-ri/api/javax.ws.rs-api-2.0.jar"/>
+	<classpathentry kind="lib" path="jaxrs-ri/ext/aopalliance-repackaged-2.3.0-b05.jar"/>
+	<classpathentry kind="lib" path="jaxrs-ri/ext/asm-debug-all-5.0.2.jar"/>
+	<classpathentry kind="lib" path="jaxrs-ri/ext/hk2-api-2.3.0-b05.jar"/>
+	<classpathentry kind="lib" path="jaxrs-ri/ext/hk2-locator-2.3.0-b05.jar"/>
+	<classpathentry kind="lib" path="jaxrs-ri/ext/hk2-utils-2.3.0-b05.jar"/>
+	<classpathentry kind="lib" path="jaxrs-ri/ext/javassist-3.18.1-GA.jar"/>
+	<classpathentry kind="lib" path="jaxrs-ri/ext/javax.annotation-api-1.2.jar"/>
+	<classpathentry kind="lib" path="jaxrs-ri/ext/javax.inject-2.3.0-b05.jar"/>
+	<classpathentry kind="lib" path="jaxrs-ri/ext/javax.servlet-api-3.0.1.jar"/>
+	<classpathentry kind="lib" path="jaxrs-ri/ext/jaxb-api-2.2.7.jar"/>
+	<classpathentry kind="lib" path="jaxrs-ri/ext/jersey-guava-2.9.jar"/>
+	<classpathentry kind="lib" path="jaxrs-ri/ext/org.osgi.core-4.2.0.jar"/>
+	<classpathentry kind="lib" path="jaxrs-ri/ext/osgi-resource-locator-1.0.1.jar"/>
+	<classpathentry kind="lib" path="jaxrs-ri/ext/persistence-api-1.0.jar"/>
+	<classpathentry kind="lib" path="jaxrs-ri/ext/validation-api-1.1.0.Final.jar"/>
+	<classpathentry kind="lib" path="jaxrs-ri/lib/jersey-client.jar"/>
+	<classpathentry kind="lib" path="jaxrs-ri/lib/jersey-common.jar"/>
+	<classpathentry kind="lib" path="jaxrs-ri/lib/jersey-container-servlet-core.jar"/>
+	<classpathentry kind="lib" path="jaxrs-ri/lib/jersey-container-servlet.jar"/>
+	<classpathentry kind="lib" path="jaxrs-ri/lib/jersey-server.jar"/>
+	<classpathentry kind="lib" path="lib/gson-2.2.4.jar"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>

@@ -1,10 +1,17 @@
 /AndroidApp/bin/
 /AndroidApp/project.properties
 /AndroidApp/gen/
+
+/RaspberryQtApp/build-zcamp14-schild-qt-*
+StreamProcessing/.metadata
+*.class
 /LyncAgentServer/LyncAgentServer/bin
 /LyncAgentServer/LyncAgentServer/obj
+/LyncAgentServer/LyncClientAgent/bin                                                                                                                
+/LyncAgentServer/LyncClientAgent/obj 
 /RaspberryQtApp/build-zcamp14-schild-qt-*
 /LyncAgentServer/LyncClientAgent/bin
 /LyncAgentServer/LyncClientAgent/obj
+/RaspberryQtApp/zcamp14-schild-qt/zcamp14-schild-qt.pro.user.*
 LyncAgentServer/LyncAgentServer/LyncAgentServer.csproj.user
 LyncAgentServer/LyncAgentServer.v11.suo
