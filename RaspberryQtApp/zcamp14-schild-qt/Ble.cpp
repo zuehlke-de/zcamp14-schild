@@ -5,6 +5,7 @@
 #include <QTimer>
 
 #include <iostream>
+#include <sstream>
 
 
 Ble::Ble() {

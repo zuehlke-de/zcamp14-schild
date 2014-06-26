@@ -1,38 +1,35 @@
 #include "qtquick1applicationviewer.h"
-#include "update.h"
 #include "Ble.h"
+#include "occupantlistmodel.h"
+#include "roomname.h"
 
 #include <QApplication>
 #include <QDeclarativeContext>
-
-
-const QString roomname = "Raum 1.01";
+#include <QGraphicsObject>
 
 int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
-
-    Update update;
-    update.ReceiveRoomName("Raum 1.01");
-    update.ReceiveOccupantName("Anna Anger");
-    update.ReceiveOccupantName("Barbara Bauer");
-    update.ReceiveOccupantName("Christian Corn");
-    update.ReceiveOccupantName("Dennis Dornbusch");
-
-    Ble *ble = new Ble();
-    QObject::connect(ble, SIGNAL(roomNameUpdate(QString)), &update, SLOT(ReceiveRoomName(QString)));
-    QObject::connect(ble, SIGNAL(occupantNameUpdate(QString)), &update, SLOT(ReceiveOccupantName(QString)));
-    QObject::connect(ble, SIGNAL(occupantNamesInvalidated()), &update, SLOT(ClearOccupantNames()));
-
     QtQuick1ApplicationViewer viewer;
 
-    viewer.rootContext()->setContextProperty("roomName", update.getRoomName());
-    viewer.rootContext()->setContextProperty("namesModel",  QVariant::fromValue(update.getOccupantNames()));
+    Roomname *roomname = new Roomname();
+    OccupantListModel *listModel = new OccupantListModel();
+
+    Ble *ble = new Ble();
+    QObject::connect(ble, SIGNAL(roomNameUpdate(QString)), roomname, SLOT(ReceiveRoomName(QString)));
+    QObject::connect(ble, SIGNAL(occupantNameUpdate(QString)), listModel, SLOT(ReceiveOccupantName(QString)));
+    QObject::connect(ble, SIGNAL(occupantNamesInvalidated()), listModel, SLOT(ClearOccupantNames()));
+
+    viewer.rootContext()->setContextProperty("namesModel", listModel);
 
     viewer.addImportPath(QLatin1String("modules"));
     viewer.setOrientation(QtQuick1ApplicationViewer::ScreenOrientationAuto);
     viewer.setMainQmlFile(QLatin1String("qrc:///main.qml"));
     viewer.showExpanded();
+
+    QObject *rootObject = viewer.rootObject();
+    rootObject->setProperty("roomNameText",QVariant("No roomname set"));
+    roomname->setParent(rootObject);
 
     int result = app.exec();
 
