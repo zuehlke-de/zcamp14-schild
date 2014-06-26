@@ -39,12 +39,15 @@ public class UpdatesService {
 
 		/* Getting updates from the cloud */
 		DynamoDBStore<Identifier, MessageBuffer> store = new ComponentFactory("camp2014").getMessageBufferStore();
-		final List<MessageBuffer> messages = store.loadByKey("status", "UNKNOWN");
+		final List<MessageBuffer> messages = store.loadByKey("status", "pending");
 		Function<MessageBuffer, Update> convertMessageBufferToUpdate = new Function<MessageBuffer, Update>() {
 			@Override
 			public Update apply(MessageBuffer input) {
-				
-				return new Update(new Long(input.getSequence()).toString(), input.message().payload().getDefaultString("plateId", "No value"), Lists.newArrayList("A"), "TODO");
+				return new Update(
+						new Long(input.getSequence()).toString(), 
+						input.message().payload().getDefaultString("plateId", "No value"),
+						input.getMessage().payload().getStringValues("names"),
+						input.getStatus());
 			}
 		};
 		

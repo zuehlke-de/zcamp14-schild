@@ -24,7 +24,11 @@ import com.zuehlke.camp2014.schild.siegfried.domain.Update;
 public class UpdatesLogic {
 public static List<Update> updates = Lists.newArrayList();
 
+	
+
 	public static void triggerUpdate(Plate plate) {
+		
+		System.out.println("Create update for plate: "+plate.toString());
 		
 		// remove pending updates from the updates list
 		Iterator<Update> iter = updates.iterator();
@@ -58,10 +62,7 @@ public static List<Update> updates = Lists.newArrayList();
 					newUpdateId, 
 					json);
 			
-			
-			
-			// TODO save message to store
-			List<MessageBuffer> msgBuffers = MessageFactory.createMessageBuffers(msg, "UNKNOWN", newUpdateId, 1l);
+			List<MessageBuffer> msgBuffers = MessageFactory.createMessageBuffers(msg, "pending", newUpdateId, Long.parseLong(newUpdateId));
 			
 			for (MessageBuffer msgBuffer: msgBuffers) {
 				store.save(msgBuffer);
@@ -80,9 +81,6 @@ public static List<Update> updates = Lists.newArrayList();
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
-		
-		
 		
 	}
 }
