@@ -6,14 +6,14 @@
       "query":{
          "bool":{
             "must":[
-               { "term": {"telemetryMessage.senderId":"%s"} }
+               { "term": {"location.persons":"%s"} }
             ]
          }
       },
       "from":0,
       "size":1,
       "sort":[
-			  { "timestamp": {"order":"desc"}  }
+			  
       ],
       "facets":{ }
    }
