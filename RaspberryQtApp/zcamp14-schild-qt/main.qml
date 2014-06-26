@@ -5,11 +5,6 @@ Rectangle {
     width: 320
     height: 240
 
-    Component.onCompleted: {
-        console.log("Roomname: " + roomName)
-        console.log("Names: " + namesModel)
-    }
-
     Text {
         id: raumname
         text: roomName
@@ -27,7 +22,7 @@ Rectangle {
         height: 160
         model: namesModel
         delegate: Text {
-            text: name
+            text: model.name
         }
     }
 

@@ -3,6 +3,7 @@
 #include <QTimer>
 
 #include <iostream>
+#include <sstream>
 
 
 Ble::Ble() {
@@ -17,13 +18,18 @@ Ble::Ble() {
 void Ble::processTimer() {
     std::cout << "timer!" << std::endl;
 
+    std::stringstream output;
     ++counter_;
     if (counter_ > 4) {
         counter_ = 0;
         emit occupantNamesInvalidated();
+    } else if (counter_ == 3) {
+        output << "Roomname #" << counter_;
+        emit roomNameUpdate(QString(output.str().c_str()));
     }
     else {
-        emit occupantNameUpdate(QString("Name #") + counter_);
+        output << "Name #" << counter_;
+        emit occupantNameUpdate(QString(output.str().c_str()));
     }
 }
 
