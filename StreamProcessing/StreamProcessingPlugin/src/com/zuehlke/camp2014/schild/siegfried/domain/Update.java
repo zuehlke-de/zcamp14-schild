@@ -1,4 +1,4 @@
-package com.zuehlke.camp2014.iot.brokers.schild.domain;
+package com.zuehlke.camp2014.schild.siegfried.domain;
 
 public class Update {
 	public Update(String updateId, String plateId, String[] names, String status) {
