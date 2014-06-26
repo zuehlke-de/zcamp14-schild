@@ -3,20 +3,37 @@ package com.zuehlke.zegcamp14tuerschild;
 import android.app.Activity;
 import android.app.Fragment;
 import android.bluetooth.BluetoothAdapter;
-import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothManager;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.support.v4.content.LocalBroadcastManager;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 import android.widget.Toast;
 
 public class MainActivity extends Activity {
+	
+	public final static String EXTRA_ROOM_NAME = "com.zuehlke.zegcamp14tuerschild.ROOM_NAME";
+	public static final String UPDATE_ROOM_NAME = "com.zuehlke.zegcamp14tuerschild.UPDATE_ROOM_NAME";
+
+	private BroadcastReceiver bReceiver = new BroadcastReceiver() {
+	    @Override
+	    public void onReceive(Context context, Intent intent) {
+	        if(intent.getAction().equals(UPDATE_ROOM_NAME)) {
+	            String roomName = intent.getStringExtra(EXTRA_ROOM_NAME);
+	            TextView textView = (TextView) findViewById(R.id.room_name);
+	            textView.setText(roomName);
+	        }
+	    }
+	};
 
     static BluetoothAdapter mBluetoothAdapter;
     
@@ -46,6 +63,11 @@ public class MainActivity extends Activity {
         
     	Intent intent = new Intent(this, CommunicationService.class);
     	this.startService(intent);
+    	
+    	LocalBroadcastManager bManager = LocalBroadcastManager.getInstance(this);
+    	IntentFilter intentFilter = new IntentFilter();
+    	intentFilter.addAction(UPDATE_ROOM_NAME);
+    	bManager.registerReceiver(bReceiver, intentFilter);
         
     }
 
