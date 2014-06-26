@@ -4,16 +4,11 @@
 #include <QAbstractListModel>
 #include <QStringList>
 
-enum AnimalRoles {
-    NameRole = Qt::UserRole + 1
-};
-
 class OccupantListModel : public QAbstractListModel
 {
     Q_OBJECT
 public:
-    OccupantListModel(const QStringList &strings, QObject *parent = 0)
-        : QAbstractListModel(parent), stringList(strings) {}
+    OccupantListModel(QObject *parent = 0) : QAbstractListModel(parent) {}
 
     int rowCount(const QModelIndex &parent = QModelIndex()) const;
     QVariant data(const QModelIndex &index, int role) const;
