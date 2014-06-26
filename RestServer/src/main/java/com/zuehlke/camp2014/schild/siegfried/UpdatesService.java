@@ -1,6 +1,5 @@
 package com.zuehlke.camp2014.schild.siegfried;
  
-import java.util.Iterator;
 import java.util.List;
 
 import javax.ws.rs.Consumes;
@@ -13,19 +12,11 @@ import javax.ws.rs.core.Response;
 
 import org.elasticsearch.common.base.Function;
 
-import scala.reflect.Manifest;
-
-import com.google.common.base.Predicate;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.zuehlke.camp2014.iot.core.ComponentFactory;
 import com.zuehlke.camp2014.iot.core.store.DynamoDBStore;
-import com.zuehlke.camp2014.iot.model.DomainObject;
-import com.zuehlke.camp2014.iot.model.DomainObject.*;
 import com.zuehlke.camp2014.iot.model.Identifier;
 import com.zuehlke.camp2014.iot.model.internal.MessageBuffer;
-import com.zuehlke.camp2014.schild.siegfried.domain.Plate;
 import com.zuehlke.camp2014.schild.siegfried.domain.Update;
 import com.zuehlke.camp2014.schild.siegfried.domain.UpdateStatus;
 import com.zuehlke.camp2014.schild.siegfried.logic.UpdatesLogic;
@@ -47,25 +38,26 @@ public class UpdatesService {
 		List<Update> response = Lists.newArrayList();
 
 		/* Getting updates from the cloud */
-//		DynamoDBStore<Identifier, MessageBuffer> store = new ComponentFactory("camp2014").getMessageBufferStore();
-//		final List<MessageBuffer> messages = store.loadByKey("status", "UNKNOWN");
-//		Function<MessageBuffer, Update> convertMessageBufferToUpdate = new Function<MessageBuffer, Update>() {
-//			@Override
-//			public Update apply(MessageBuffer input) {
-//				return new Update(new Long(input.getSequence()).toString(), "TODO", new String[] {"A", "B"}, "TODO");
-//			}
-//		};
-//		
-//		for (MessageBuffer msg : messages) {
-//			response.add(convertMessageBufferToUpdate.apply(msg));
-//		}
+		DynamoDBStore<Identifier, MessageBuffer> store = new ComponentFactory("camp2014").getMessageBufferStore();
+		final List<MessageBuffer> messages = store.loadByKey("status", "UNKNOWN");
+		Function<MessageBuffer, Update> convertMessageBufferToUpdate = new Function<MessageBuffer, Update>() {
+			@Override
+			public Update apply(MessageBuffer input) {
+				
+				return new Update(new Long(input.getSequence()).toString(), input.message().payload().getDefaultString("plateId", "No value"), Lists.newArrayList("A"), "TODO");
+			}
+		};
+		
+		for (MessageBuffer msg : messages) {
+			response.add(convertMessageBufferToUpdate.apply(msg));
+		}
 		
 		/* Using memory storage */
-		for (Update update : UpdatesLogic.updates) {
-			if (update.getStatus().equals("pending")) {
-				response.add(update);
-			}
-		}
+//		for (Update update : UpdatesLogic.updates) {
+//			if (update.getStatus().equals("pending")) {
+//				response.add(update);
+//			}
+//		}
 		
 		return response;
 	}
