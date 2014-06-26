@@ -22,10 +22,11 @@ public class UsersService {
 	@Produces(MediaType.APPLICATION_JSON)
 	public UpdateLocation updateLocation(@PathParam("userId") String userId, UpdateLocation updateLocation) {
 		
-		Preconditions.checkNotNull(userId, "No userId provided");		
+		Preconditions.checkNotNull(userId, "No userId provided");
+		updateLocation.setUserId(userId);
 		
 		/* Bypass kafka */
-		locationLogic.processLocationUpdate(userId, updateLocation);
+		Siegfried.messageListenerDoorplate.processLocationUpdate(updateLocation);
 		
 		return updateLocation;
 	}
