@@ -48,9 +48,12 @@ public class ProcessingTest extends Assert {
 				"\"productTypes\": [{\"id\": \"2\",\"name\": \"mobile\"}]," +
 				"\"serialnumber\": \"sat\"}")));
 		
-		System.out.println(target.path("schild/telemetrymessage").queryParam("parent", "1").request().post(Entity.json("{\"payload\": \"[{'id':'mfu', 'name':'Masanori Fujita'}, {'id':'sat', 'name':'Michael Sattler'}]\"," +
-				"\"senderId\": \"somebody\"," +
-				"\"timestamp\": \"2014/06/25 16:10:00\"}")));
+		System.out.println(target.path("schild/room/42").request().put(Entity.json("{\"name\": \"Chagall\",\"plateId\":\"42\",\"persons\": [\"mfu\",\"sat\"]}")));
+		System.out.println(target.path("schild/room/43").request().put(Entity.json("{\"name\": \"Miro\",\"plateId\":\"43\",\"persons\": []}")));
+		
+//		System.out.println(target.path("schild/telemetrymessage").queryParam("parent", "1").request().post(Entity.json("{\"payload\": \"[{'id':'mfu', 'name':'Masanori Fujita'}, {'id':'sat', 'name':'Michael Sattler'}]\"," +
+//				"\"senderId\": \"somebody\"," +
+//				"\"timestamp\": \"2014/06/25 16:10:00\"}")));
 		
 		listener = new MessageListenerDoorplate();
 		Thread.sleep(1500L);
@@ -62,13 +65,14 @@ public class ProcessingTest extends Assert {
 		System.out.println(target.path("schild/device/2").request().delete());
 		System.out.println(target.path("schild/device/3").request().delete());
 		System.out.println(target.path("schild/device/4").request().delete());
-		System.out.println(target.path("schild/telemetrymessage/_query").queryParam("q", "senderId:somebody").request().delete());
+		System.out.println(target.path("schild/room/42").request().delete());
+		System.out.println(target.path("schild/room/43").request().delete());
+//		System.out.println(target.path("schild/telemetrymessage/_query").queryParam("q", "senderId:somebody").request().delete());
 
 		target = null;
 		listener = null;
 	}
 
-	@SuppressWarnings("rawtypes")
 	@Test
 	public void testProcessMove() {
 		Move move = new Move();
@@ -85,14 +89,11 @@ public class ProcessingTest extends Assert {
 	}
 
 	private void assertPersonInRoom(String person, String doorPlateSerial) {
-		Response response = target.path("schild/telemetrymessage/_search").request().post(Entity.json("{\"query\": {" +
-				"\"bool\": {\"must\": [" +
-				"{\"has_parent\" : {\"parent_type\" :\"device\", \"query\" : {\"match\" : {\"serialnumber\" : \"" + doorPlateSerial + "\"}}} }," +
-				"{\"range\" : {\"timestamp\" : {\"gt\" : \"2014/06/25 16:10:00\"}}}]}}}"));
-		
+		Response response = target.path("schild/room/_search").request().post(Entity.json("{\"query\":{\"bool\":{\"must\":[{\"term\":{\"room.persons\":\"" + person + "\"}}]}}}"));
 		assertPersonCheckedIn(response, person);
 	}
 
+	@SuppressWarnings("rawtypes")
 	private void assertPersonCheckedIn(Response response, String name) {
 		String responseBody = response.readEntity(String.class);
 		Gson gson = new Gson();
@@ -103,17 +104,18 @@ public class ProcessingTest extends Assert {
 //		System.out.println("Hits array: " + hits);
 		assertTrue(hits.size() >= 1);
 		Map source = (Map) ((Map) hits.get(0)).get("_source");
-		String payloadJSON = (String) source.get("payload");
-		List payloadArray = gson.fromJson(payloadJSON, List.class);
+		List personsList = (List) source.get("persons");
 //		System.out.println("Payload: " + payloadArray);
-		assertEquals(true, payloadArray.size() >= 1);
-		boolean found = false;
-		for (Object person : payloadArray) {
-			if (((Map) person).get("id").equals(name)) {
-				found = true;
-			}
-		}
-		assertTrue("Person " + name + " not found", found);
+		assertTrue(personsList.contains(name));
+	}
+
+	private void assertPersonCurrentlyInRoom(String person, String doorPlateSerial) {
+		Response response = target.path("schild/telemetrymessage/_search").request().post(Entity.json("{\"query\": {" +
+				"\"bool\": {\"must\": [" +
+				"{\"has_parent\" : {\"parent_type\" :\"device\", \"query\" : {\"match\" : {\"serialnumber\" : \"" + doorPlateSerial + "\"}}} }," +
+				"{\"range\" : {\"timestamp\" : {\"gt\" : \"2014/06/25 16:10:00\"}}}]}}}"));
+		
+		assertPersonCheckedIn(response, person);
 	}
 
 }
