@@ -2,35 +2,35 @@
 #include "update.h"
 #include "Ble.h"
 #include "occupantlistmodel.h"
+#include "roomname.h"
 
 #include <QApplication>
 #include <QDeclarativeContext>
-
-const QString roomname = "Raum 1.01";
+#include <QGraphicsObject>
 
 int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
+    QtQuick1ApplicationViewer viewer;
 
-    QStringList names = QStringList() << "Anna Anger" << "Barbara Bauer" << "Christian Corn" << "Dennis Dornbusch";
-
-    Update update;
-    OccupantListModel *listModel = new OccupantListModel(names);
+    Roomname *roomname = new Roomname();
+    OccupantListModel *listModel = new OccupantListModel();
 
     Ble *ble = new Ble();
     QObject::connect(ble, SIGNAL(occupantNamesInvalidated()), listModel, SLOT(ClearOccupantNames()));
     QObject::connect(ble, SIGNAL(occupantNameUpdate(QString)), listModel, SLOT(ReceiveOccupantName(QString)));
-    QObject::connect(ble, SIGNAL(roomNameUpdate(QString)), &update, SLOT(ReceiveRoomName(QString)));
+    QObject::connect(ble, SIGNAL(roomNameUpdate(QString)), roomname, SLOT(ReceiveRoomName(QString)));
 
-    QtQuick1ApplicationViewer viewer;
-
-    viewer.rootContext()->setContextProperty("roomName", "Room 1.01");
     viewer.rootContext()->setContextProperty("namesModel", listModel);
 
     viewer.addImportPath(QLatin1String("modules"));
     viewer.setOrientation(QtQuick1ApplicationViewer::ScreenOrientationAuto);
     viewer.setMainQmlFile(QLatin1String("qrc:///main.qml"));
     viewer.showExpanded();
+
+    QObject *rootObject = viewer.rootObject();
+    rootObject->setProperty("roomNameText",QVariant("No roomname set"));
+    roomname->setParent(rootObject);
 
     int result = app.exec();
 
