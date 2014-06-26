@@ -12,11 +12,10 @@ import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.Response;
 
 import com.google.gson.Gson;
+import com.zuehlke.camp2014.iot.brokers.schild.domain.LocationUpdate;
 import com.zuehlke.camp2014.iot.brokers.schild.domain.Move;
-import com.zuehlke.camp2014.iot.brokers.schild.domain.Update;
-import com.zuehlke.camp2014.iot.brokers.schild.domain.UpdateStatus;
-import com.zuehlke.camp2014.iot.model.internal.Message;
 
+@SuppressWarnings({"rawtypes", "unchecked"})
 public class MessageListenerDoorplate {
 
 	public static final String BASE_URI = "http://localhost:9200"; 
@@ -28,20 +27,21 @@ public class MessageListenerDoorplate {
         target = c.target(MessageListenerDoorplate.BASE_URI);
 	}
 
+	/**
+	 * Processes a move event that removes a user from one door plate's persons list
+	 * and adds him to another's. The update is stored in ElasticSearch and update 
+	 * messages generated in Dynamo DB.
+	 * @param move The move object
+	 */
 	public void processMove(Move move) {
 		String movingUser = move.getUserId();
 		String newDoorPlateSerial = move.getPlateId();
-		removeUserFromCurrentDoorPlate(movingUser);
-		addUserToDoorPlateWithId(movingUser, newDoorPlateSerial);
-		
-		// TODOs:
-		// Put Updates for old and new data in Dynamo DB
-//		System.out.println(target.path("schild/telemetrymessage").queryParam("parent", "1").request().post(Entity.json("{\"payload\": \"[{'id':'mfu', 'name':'Masanori Fujita'}, {'id':'sat', 'name':'Michael Sattler'}]\"," +
-//				"\"senderId\": \"somebody\"," +
-//				"\"timestamp\": \"2014/06/25 16:10:00\"}")));
+		String oldRoomJSON = removeUserFromCurrentDoorPlate(movingUser);
+		String newRoomJSON = addUserToDoorPlateWithId(movingUser, newDoorPlateSerial);
+		fireUpdatesForOldAndNewRoom(oldRoomJSON, newRoomJSON);
 	}
 
-	private void removeUserFromCurrentDoorPlate(String movingUser) {
+	private String removeUserFromCurrentDoorPlate(String movingUser) {
 		Map oldDoorPlateDocument = getCurrentDoorPlateDocumentForUserId(movingUser);
 		String oldDoorPlateId = (String) oldDoorPlateDocument.get("plateId");
 		List personsInOldRoom = (List) oldDoorPlateDocument.get("persons");
@@ -53,6 +53,8 @@ public class MessageListenerDoorplate {
 		if (updateResponse.getStatus() != 200) {
 			System.out.println(updateResponse);
 		}
+		
+		return oldDoorPlateDocumentUpdateJSON;
 	}
 	
 	private Map getCurrentDoorPlateDocumentForUserId(String userId) {
@@ -61,12 +63,15 @@ public class MessageListenerDoorplate {
 		Gson gson = new Gson();
 		Map jsonMap = gson.fromJson(responseBody, Map.class);
 		System.out.println(jsonMap);
-//		System.out.println("Hits: " + ((Map) jsonMap.get("hits")).get("total"));
 		List hits =  (List) ((Map) jsonMap.get("hits")).get("hits");
-//		System.out.println("Hits array: " + hits);
 		if (hits.size() >= 1) {
 			return (Map) ((Map) hits.get(0)).get("_source");
 		}
+		
+		return generateNewRoom();
+	}
+
+	private Map<String, Object> generateNewRoom() {
 		Map<String, Object> result = new HashMap<String, Object>();
 		result.put("name", "newRoom");
 		result.put("persons", new ArrayList<String>());
@@ -74,7 +79,7 @@ public class MessageListenerDoorplate {
 		return result;
 	}
 
-	private void addUserToDoorPlateWithId(String userId, String doorPlateId) {
+	private String addUserToDoorPlateWithId(String userId, String doorPlateId) {
 		Map doorPlateDocument = getTargetDoorPlateDocumentForDoorPlateId(doorPlateId);
 		List personsInOldRoom = (List) doorPlateDocument.get("persons");
 		personsInOldRoom.add(userId);
@@ -85,6 +90,7 @@ public class MessageListenerDoorplate {
 		if (updateResponse.getStatus() != 200) {
 			System.out.println(updateResponse);
 		}
+		return doorPlateDocumentUpdateJSON;
 	}
 	
 	private Map getTargetDoorPlateDocumentForDoorPlateId(String plateId) {
@@ -95,21 +101,16 @@ public class MessageListenerDoorplate {
 		return (Map) result.get("_source");
 	}
 	
-	private String getCurrentDoorPlateDeviceIdForUserId(String userId) {
-		// TODO: Mock
-		return getDoorPlateDeviceIdForSerialNo("42");
+	private void fireUpdatesForOldAndNewRoom(String oldRoomJSON, String newRoomJSON) {
+		// TODO: Store doorplate updates in DynamoDB
 	}
 	
-	private String getDoorPlateDeviceIdForSerialNo(String doorPlateSerial) {
-		// TODO: Mock
-		return doorPlateSerial == "42" ? "1" : "2";
-	}
-	
-	public void processUpdate(Update update) {
-		
-	}
-	
-	public void processStatusForUpdateWithId(UpdateStatus status, String updateId) {
+	/**
+	 * Processes a location update for a user and generates a telemetry message accordingly. 
+	 * The update is stored in ElasticSearch.
+	 * @param move The move object
+	 */
+	public void processLocationUpdate(LocationUpdate update) {
 		
 	}
 }

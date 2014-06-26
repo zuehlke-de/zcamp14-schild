@@ -1,5 +1,4 @@
 #include "qtquick1applicationviewer.h"
-#include "update.h"
 #include "Ble.h"
 #include "occupantlistmodel.h"
 #include "roomname.h"
@@ -17,9 +16,9 @@ int main(int argc, char *argv[])
     OccupantListModel *listModel = new OccupantListModel();
 
     Ble *ble = new Ble();
-    QObject::connect(ble, SIGNAL(occupantNamesInvalidated()), listModel, SLOT(ClearOccupantNames()));
-    QObject::connect(ble, SIGNAL(occupantNameUpdate(QString)), listModel, SLOT(ReceiveOccupantName(QString)));
     QObject::connect(ble, SIGNAL(roomNameUpdate(QString)), roomname, SLOT(ReceiveRoomName(QString)));
+    QObject::connect(ble, SIGNAL(occupantNameUpdate(QString)), listModel, SLOT(ReceiveOccupantName(QString)));
+    QObject::connect(ble, SIGNAL(occupantNamesInvalidated()), listModel, SLOT(ClearOccupantNames()));
 
     viewer.rootContext()->setContextProperty("namesModel", listModel);
 
