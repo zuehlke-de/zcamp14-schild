@@ -1,9 +1,6 @@
 package com.zuehlke.camp2014.schild.siegfried.logic;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -25,7 +22,6 @@ public class MessageListenerDoorplate {
 
 	public static final String BASE_URI = "http://ec2-54-74-5-94.eu-west-1.compute.amazonaws.com:9200";
 	
-	private DateFormat dateFormat;
 	private Gson gson = new Gson();
 	
 	private WebTarget target;
@@ -33,7 +29,6 @@ public class MessageListenerDoorplate {
 	public MessageListenerDoorplate() {
 		Client c = ClientBuilder.newClient();
         target = c.target(MessageListenerDoorplate.BASE_URI);
-        dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
 	}
 
 	/**
@@ -45,19 +40,22 @@ public class MessageListenerDoorplate {
 	public void processMove(Move move) {
 		String movingUser = move.getUserId();
 		String newDoorPlateSerial = move.getPlateId();
-		String oldRoomJSON = removeUserFromCurrentDoorPlate(movingUser);
-		String newRoomJSON = addUserToDoorPlateWithId(movingUser, newDoorPlateSerial);
+		String oldRoomJSON = removeUserFromCurrentDoorPlateWithDocType(movingUser, "room");
+		String newRoomJSON = addUserToDoorPlateWithIdAndDocType(movingUser, newDoorPlateSerial, "room");
 		fireUpdatesForOldAndNewRoom(getUpdateFromRoomJSON(oldRoomJSON), getUpdateFromRoomJSON(newRoomJSON));
 	}
 
-	private String removeUserFromCurrentDoorPlate(String movingUser) {
-		Map oldDoorPlateDocument = getCurrentDoorPlateDocumentForUserId(movingUser);
+	private String removeUserFromCurrentDoorPlateWithDocType(String movingUser, String docType) {
+		Map oldDoorPlateDocument = getCurrentDoorPlateDocumentForUserIdWithDocType(movingUser, docType);
+		if (oldDoorPlateDocument == null) {
+			return null;
+		}
 		String oldDoorPlateId = (String) oldDoorPlateDocument.get("plateId");
 		List personsInOldRoom = (List) oldDoorPlateDocument.get("persons");
 		personsInOldRoom.remove(movingUser);
 		String oldDoorPlateDocumentUpdateJSON = gson.toJson(oldDoorPlateDocument);
 		
-		Response updateResponse = target.path("db/room/" + oldDoorPlateId).request().put(Entity.json(oldDoorPlateDocumentUpdateJSON));
+		Response updateResponse = target.path("db/" + docType + "/" + oldDoorPlateId).request().put(Entity.json(oldDoorPlateDocumentUpdateJSON));
 		if (updateResponse.getStatus() != 200) {
 			System.out.println(updateResponse);
 		}
@@ -65,8 +63,8 @@ public class MessageListenerDoorplate {
 		return oldDoorPlateDocumentUpdateJSON;
 	}
 	
-	private Map getCurrentDoorPlateDocumentForUserId(String userId) {
-		Response response = target.path("db/room/_search").request().post(Entity.json("{\"query\":{\"bool\":{\"must\":[{\"term\":{\"room.persons\":\"" + userId + "\"}}]}}}"));
+	private Map getCurrentDoorPlateDocumentForUserIdWithDocType(String userId, String docType) {
+		Response response = target.path("db/" + docType + "/_search").request().post(Entity.json("{\"query\":{\"bool\":{\"must\":[{\"term\":{\"" + docType + ".persons\":\"" + userId + "\"}}]}}}"));
 		String responseBody = response.readEntity(String.class);
 		Map jsonMap = gson.fromJson(responseBody, Map.class);
 		System.out.println(jsonMap);
@@ -75,39 +73,44 @@ public class MessageListenerDoorplate {
 			return (Map) ((Map) hits.get(0)).get("_source");
 		}
 		
-		return generateNewRoom();
+		return null;
 	}
 
-	private Map<String, Object> generateNewRoom() {
-		// TODO So nicht - nicht vorhandenen ehemaligen Room übergehen!!!
-		Map<String, Object> result = new HashMap<String, Object>();
-		result.put("name", "newRoom");
-		result.put("persons", new ArrayList<String>());
-		result.put("plateId", "" + Math.random() * 100000);
-		return result;
-	}
-
-	private String addUserToDoorPlateWithId(String userId, String doorPlateId) {
-		Map doorPlateDocument = getTargetDoorPlateDocumentForDoorPlateId(doorPlateId);
+	private String addUserToDoorPlateWithIdAndDocType(String userId, String doorPlateId, String docType) {
+		Map doorPlateDocument = getTargetDoorPlateDocumentForDoorPlateIdWithDocType(doorPlateId, docType);
 		List personsInOldRoom = (List) doorPlateDocument.get("persons");
 		personsInOldRoom.add(userId);
 		String doorPlateDocumentUpdateJSON = gson.toJson(doorPlateDocument);
 		
-		Response updateResponse = target.path("db/room/" + doorPlateId).request().put(Entity.json(doorPlateDocumentUpdateJSON));
+		Response updateResponse = target.path("db/" + docType + "/" + doorPlateId).request().put(Entity.json(doorPlateDocumentUpdateJSON));
 		if (updateResponse.getStatus() != 200) {
 			System.out.println(updateResponse);
 		}
 		return doorPlateDocumentUpdateJSON;
 	}
 	
-	private Map getTargetDoorPlateDocumentForDoorPlateId(String plateId) {
-		Response response = target.path("db/room/" + plateId).request().get();
-		String responseBody = response.readEntity(String.class);
-		Map result = (Map) gson.fromJson(responseBody, Map.class);
-		return (Map) result.get("_source");
+	private Map getTargetDoorPlateDocumentForDoorPlateIdWithDocType(String plateId, String docType) {
+		Response response = target.path("db/" + docType + "/" + plateId).request().get();
+		if (response.getStatus() == 200) {
+			String responseBody = response.readEntity(String.class);
+			Map result = (Map) gson.fromJson(responseBody, Map.class);
+			return (Map) result.get("_source");
+		}
+		return generateNewRoomWithId(plateId);
 	}
-	
+
+	private Map<String, Object> generateNewRoomWithId(String roomId) {
+		Map<String, Object> result = new HashMap<String, Object>();
+		result.put("name", "Room " + roomId);
+		result.put("persons", new ArrayList<String>());
+		result.put("plateId", roomId);
+		return result;
+	}
+
 	private Update getUpdateFromRoomJSON(String roomJSON) {
+		if (roomJSON == null) {
+			return null;
+		}
 		Map roomMap = gson.fromJson(roomJSON, Map.class);
 		List persons = (List) roomMap.get("persons");
 		return new Update(null, (String) roomMap.get("plateId"), (String[]) persons.toArray(new String[persons.size()]), null);
@@ -123,24 +126,9 @@ public class MessageListenerDoorplate {
 	 * @param move The move object
 	 */
 	public void processLocationUpdate(UpdateLocation update) {
-//		String userId = update.getUserId();
-//		String plateId = update.getPlateId();
-//		Map userDocument = getUserDeviceDocumentForUserId(userId);
-//		String userDocId = "blah"; // TODO
-//		String doorPlateSerial = update.getPlateId();
-//		String doorPlateDocId = getDoorPlateDeviceIdForSerialNo(doorPlateSerial);
-//		System.out.println(target.path("db/telemetrymessage").queryParam("parent", userDocId).request().post(Entity.json(
-//				"{\"payload\": \"{'plateId':'" + plateId + "'}\"," +
-//				"\"senderId\": \"userId\"," +
-//				"\"timestamp\": \"" + dateFormat.format(new Date()) + "\"}")));
-
-	}
-	
-	private Map getUserDeviceDocumentForUserId(String userId) {
-		return new HashMap<String, Object>();
-	}
-	
-	private String getDoorPlateDeviceIdForSerialNo(String doorPlateSerial) {
-		return "1";
+		String movingUser = update.getUserId();
+		String newDoorPlateSerial = update.getPlateId();
+		removeUserFromCurrentDoorPlateWithDocType(movingUser, "location");
+		addUserToDoorPlateWithIdAndDocType(movingUser, newDoorPlateSerial, "location");
 	}
 }

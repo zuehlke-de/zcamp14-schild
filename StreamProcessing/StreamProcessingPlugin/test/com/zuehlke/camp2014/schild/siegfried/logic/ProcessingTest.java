@@ -113,23 +113,27 @@ public class ProcessingTest extends Assert {
 		assertEquals(roomNumber, doorPlateId);
 	}
 
-//	@Test
-//	public void testProcessLocationUpdate() {
-//		UpdateLocation update = new UpdateLocation();
-//		update.setPlateId("3343");
-//		update.setUserId("hinz");
-//		
-//		System.out.println("Processing location update");
-//		
-//		listener.processLocationUpdate(update);
-//		
-//		assertPersonCurrentlyInRoom(update.getUserId(), update.getPlateId());
-//		
-//		System.out.println("Location update processed");
-//	}
+	@Test
+	public void testProcessLocationUpdate() {
+		UpdateLocation update = new UpdateLocation();
+		update.setPlateId("3343");
+		update.setUserId("hinz");
+		
+		System.out.println("Processing location update");
+		
+		listener.processLocationUpdate(update);
+		
+		try {
+			Thread.sleep(1500L);
+		} catch (InterruptedException e) {}
+		
+		assertPersonCurrentlyInRoom(update.getUserId(), update.getPlateId());
+		
+		System.out.println("Location update processed");
+	}
 
 	private void assertPersonCurrentlyInRoom(String person, String doorPlateSerial) {
 		Response response = target.path("db/location/_search").request().post(Entity.json("{\"query\":{\"bool\":{\"must\":[{\"term\":{\"location.persons\":\"" + person + "\"}}]}}}"));
-		assertRoomNumberEquals(response, person);
+		assertRoomNumberEquals(response, doorPlateSerial);
 	}
 }
