@@ -13,8 +13,6 @@ import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.Response;
 
-import jersey.repackaged.com.google.common.collect.Lists;
-
 import org.elasticsearch.common.collect.Sets;
 
 import com.google.gson.Gson;
@@ -36,13 +34,14 @@ public class MessageListenerDoorplate {
 	public static final String BASE_URI = "http://ec2-54-74-5-94.eu-west-1.compute.amazonaws.com:9200";
 	
 	private DateFormat dateFormat;
+	private Gson gson = new Gson();
 	
 	private WebTarget target;
 	
 	public MessageListenerDoorplate() {
 		Client c = ClientBuilder.newClient();
         target = c.target(MessageListenerDoorplate.BASE_URI);
-        dateFormat = new SimpleDateFormat("");
+        dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
 	}
 
 	/**
@@ -56,14 +55,7 @@ public class MessageListenerDoorplate {
 		String newDoorPlateSerial = move.getPlateId();
 		String oldRoomJSON = removeUserFromCurrentDoorPlate(movingUser);
 		String newRoomJSON = addUserToDoorPlateWithId(movingUser, newDoorPlateSerial);
-		
-		
-		//fireUpdatesForOldAndNewRoom(oldRoomJSON, newRoomJSON);
-		
-		fireUpdatesForOldAndNewRoom(
-				new Update(null, "42", Lists.newArrayList("mfu"), "pending"), 
-				new Update(null, "99", Lists.newArrayList("zgkaba"), "pending")
-				);
+		fireUpdatesForOldAndNewRoom(getUpdateFromRoomJSON(oldRoomJSON), getUpdateFromRoomJSON(newRoomJSON));
 	}
 
 	private String removeUserFromCurrentDoorPlate(String movingUser) {
@@ -71,7 +63,6 @@ public class MessageListenerDoorplate {
 		String oldDoorPlateId = (String) oldDoorPlateDocument.get("plateId");
 		List personsInOldRoom = (List) oldDoorPlateDocument.get("persons");
 		personsInOldRoom.remove(movingUser);
-		Gson gson = new Gson();
 		String oldDoorPlateDocumentUpdateJSON = gson.toJson(oldDoorPlateDocument);
 		
 		Response updateResponse = target.path("db/room/" + oldDoorPlateId).request().put(Entity.json(oldDoorPlateDocumentUpdateJSON));
@@ -85,7 +76,6 @@ public class MessageListenerDoorplate {
 	private Map getCurrentDoorPlateDocumentForUserId(String userId) {
 		Response response = target.path("db/room/_search").request().post(Entity.json("{\"query\":{\"bool\":{\"must\":[{\"term\":{\"room.persons\":\"" + userId + "\"}}]}}}"));
 		String responseBody = response.readEntity(String.class);
-		Gson gson = new Gson();
 		Map jsonMap = gson.fromJson(responseBody, Map.class);
 		System.out.println(jsonMap);
 		List hits =  (List) ((Map) jsonMap.get("hits")).get("hits");
@@ -97,6 +87,7 @@ public class MessageListenerDoorplate {
 	}
 
 	private Map<String, Object> generateNewRoom() {
+		// TODO So nicht - nicht vorhandenen ehemaligen Room �bergehen!!!
 		Map<String, Object> result = new HashMap<String, Object>();
 		result.put("name", "newRoom");
 		result.put("persons", new ArrayList<String>());
@@ -108,7 +99,6 @@ public class MessageListenerDoorplate {
 		Map doorPlateDocument = getTargetDoorPlateDocumentForDoorPlateId(doorPlateId);
 		List personsInOldRoom = (List) doorPlateDocument.get("persons");
 		personsInOldRoom.add(userId);
-		Gson gson = new Gson();
 		String doorPlateDocumentUpdateJSON = gson.toJson(doorPlateDocument);
 		
 		Response updateResponse = target.path("db/room/" + doorPlateId).request().put(Entity.json(doorPlateDocumentUpdateJSON));
@@ -121,9 +111,14 @@ public class MessageListenerDoorplate {
 	private Map getTargetDoorPlateDocumentForDoorPlateId(String plateId) {
 		Response response = target.path("db/room/" + plateId).request().get();
 		String responseBody = response.readEntity(String.class);
-		Gson gson = new Gson();
 		Map result = (Map) gson.fromJson(responseBody, Map.class);
 		return (Map) result.get("_source");
+	}
+	
+	private Update getUpdateFromRoomJSON(String roomJSON) {
+		Map roomMap = gson.fromJson(roomJSON, Map.class);
+		List persons = (List) roomMap.get("persons");
+		return new Update(null, (String) roomMap.get("plateId"), persons, null);
 	}
 	
 	private void sendToCloud(Update update) {
@@ -134,7 +129,6 @@ public class MessageListenerDoorplate {
 				update.getNames(),
 				"pending"
 				);
-		Gson gson = new Gson();
 		final String json = gson.toJson(newUpdate);
 		
 		DynamoDBStore<Identifier, MessageBuffer> store = new ComponentFactory(IdGenerator.COMPONENT_ID).getMessageBufferStore();
@@ -150,12 +144,13 @@ public class MessageListenerDoorplate {
 			store.save(msgBuffer);
 		}
 		
-	}
+	}	
 	
 	private void fireUpdatesForOldAndNewRoom(Update oldRoom, Update newRoom) {
 		sendToCloud(oldRoom);
 		sendToCloud(newRoom);
 	}
+		
 	
 	/**
 	 * Processes a location update for a user and generates a telemetry message accordingly. 
@@ -163,16 +158,16 @@ public class MessageListenerDoorplate {
 	 * @param move The move object
 	 */
 	public void processLocationUpdate(UpdateLocation update) {
-		String userId = update.getUserId();
-		String plateId = update.getPlateId();
-		Map userDocument = getUserDeviceDocumentForUserId(userId);
-		String userDocId = "blah"; // TODO
-		String doorPlateSerial = update.getPlateId();
-		String doorPlateDocId = getDoorPlateDeviceIdForSerialNo(doorPlateSerial);
-		System.out.println(target.path("db/telemetrymessage").queryParam("parent", userDocId).request().post(Entity.json(
-				"{\"payload\": \"{'plateId':'" + plateId + "'}\"," +
-				"\"senderId\": \"userId\"," +
-				"\"timestamp\": \"2014/06/25 16:10:00\"}")));
+//		String userId = update.getUserId();
+//		String plateId = update.getPlateId();
+//		Map userDocument = getUserDeviceDocumentForUserId(userId);
+//		String userDocId = "blah"; // TODO
+//		String doorPlateSerial = update.getPlateId();
+//		String doorPlateDocId = getDoorPlateDeviceIdForSerialNo(doorPlateSerial);
+//		System.out.println(target.path("db/telemetrymessage").queryParam("parent", userDocId).request().post(Entity.json(
+//				"{\"payload\": \"{'plateId':'" + plateId + "'}\"," +
+//				"\"senderId\": \"userId\"," +
+//				"\"timestamp\": \"" + dateFormat.format(new Date()) + "\"}")));
 
 	}
 	
