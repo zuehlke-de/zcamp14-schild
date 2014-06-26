@@ -22,10 +22,12 @@ public class UpdateLocation {
 	}
 
 	String plateId;
+	String userId;
 	
 	public String toString() {
 		return Objects.toStringHelper(this)
 		.add("plateId", plateId)
+		.add("userId", userId)
 		.toString();
 	}
 }
