@@ -1,3 +1,28 @@
 {
-    "port": 80
+   "port":80,
+   "queryString":{
+      "query":{
+         "bool":{
+            "must":[
+               {
+                  "term":{
+                     "telemetryMessage.senderId":"%s"
+                  }
+               }
+            ]
+         }
+      },
+      "from":0,
+      "size":1,
+      "sort":[
+         {
+            "timestamp":{
+               "order":"desc"
+            }
+         }
+      ],
+      "facets":{
+
+      }
+   }
 }
