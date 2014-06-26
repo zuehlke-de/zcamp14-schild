@@ -1,29 +1,18 @@
 package com.zuehlke.camp2014.iot.brokers.schild.domain;
 
-public class LocationUpdate {
-	String locationUpdateId;
+public class UpdateLocation {
 	String userId;
 	String plateId;
 
-	public LocationUpdate() {
-		this.locationUpdateId = "";
+	public UpdateLocation() {
 		this.userId = "";
 		this.plateId = "";
 	}
 
-	public LocationUpdate(String LocationUpdateId, String userId, String plateId) {
+	public UpdateLocation(String userId, String plateId) {
 		super();
-		this.locationUpdateId = LocationUpdateId;
 		this.userId = userId;
 		this.plateId = plateId;
-	}
-
-	public String getLocationUpdateId() {
-		return locationUpdateId;
-	}
-
-	public void setLocationUpdateId(String LocationUpdateId) {
-		this.locationUpdateId = LocationUpdateId;
 	}
 
 	public String getUserId() {
