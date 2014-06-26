@@ -17,21 +17,24 @@ public static List<Update> updates = Lists.newArrayList();
 		// remove pending updates from the updates list
 		Iterator<Update> iter = updates.iterator();
 		while (iter.hasNext()) {
-			if (iter.next().getPlateId().equals(plate.getPlateId())) {
+			final Update currentUpdate = iter.next();
+			if (currentUpdate.getPlateId().equals(plate.getPlateId())) {
+				System.out.println("Remove outdated update: "+currentUpdate.toString());
 				iter.remove();
 			}
 		}
 		
 		// construct the update structure
-		final String updateId = new Integer(lastUpdateId++).toString();
-		final Update update = new Update(
-				updateId,
+		final String newUpdateId = new Integer(lastUpdateId++).toString();
+		final Update newUpdate = new Update(
+				newUpdateId,
 				plate.getPlateId(),
-				plate.getNames().toArray(new String[] {}),
+				plate.getNames(),
 				"pending"
 				);
 		
 		// add the update to the list of pending updates
-		updates.add(update);
+		updates.add(newUpdate);
+		System.out.println("Added new update: "+newUpdate.toString());
 	}
 }
