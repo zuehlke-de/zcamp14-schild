@@ -22,7 +22,7 @@ Rectangle {
         height: 160
         model: namesModel
         delegate: Text {
-            text: Name
+            text: display
         }
     }
 

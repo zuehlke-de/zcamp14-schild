@@ -1,0 +1,6 @@
+**/*.o
+**/moc_*.cpp
+**/qrc_qml.cpp
+**/Makefile
+zcamp14-schild-qt/zcamp14-schild-qt
+
