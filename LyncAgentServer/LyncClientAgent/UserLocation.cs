@@ -10,6 +10,5 @@ namespace LyncClientAgent
     {
         public String Location {get; set; }
         public String Username { get; set; }
-
     }
 }

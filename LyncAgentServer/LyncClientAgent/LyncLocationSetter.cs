@@ -23,6 +23,7 @@ namespace LyncClientAgent
                 Self self = LyncClient.GetClient().Self;
                 var list = new List<KeyValuePair<PublishableContactInformationType, object>>();
                 list.Add(new KeyValuePair<PublishableContactInformationType, object>(PublishableContactInformationType.LocationName, location));
+                list.Add(new KeyValuePair<PublishableContactInformationType, object>(PublishableContactInformationType.PersonalNote, location));
                 self.EndPublishContactInformation(self.BeginPublishContactInformation(list, null, null));
                 Console.WriteLine("Setting Location: {0}", location);
                 _lastLocation = location;
@@ -46,7 +47,7 @@ namespace LyncClientAgent
             {
                 Thread.Sleep(1000);
                 UserLocation loc = GetUserLocation();
-                if (loc.Location != _lastLocation)
+                if (loc != null && loc.Location != _lastLocation)
                 {
                     SetLyncLocation(loc.Location);
                 }
@@ -55,12 +56,20 @@ namespace LyncClientAgent
 
         private UserLocation GetUserLocation()
         {
-            var user = System.Security.Principal.WindowsIdentity.GetCurrent();
-            string userName = user.Name.Substring(user.Name.LastIndexOf('\\') + 1);
-            var req = WebRequest.CreateHttp("http://zcamp14-brunhilde.zuehlke.ws:80/location?username=" + userName);
-            var response = req.GetResponse().GetResponseStream();
-            StreamReader rd = new StreamReader(response);
-            return JsonConvert.DeserializeObject<UserLocation>(rd.ReadToEnd());
+            try
+            {
+                var user = System.Security.Principal.WindowsIdentity.GetCurrent();
+                string userName = user.Name.Substring(user.Name.LastIndexOf('\\') + 1);
+                var req = WebRequest.CreateHttp("http://zcamp14-brunhilde.zuehlke.ws:80/location?username=" + userName);
+                var response = req.GetResponse().GetResponseStream();
+                StreamReader rd = new StreamReader(response);
+                return JsonConvert.DeserializeObject<UserLocation>(rd.ReadToEnd());
+            }
+            catch (WebException ex)
+            {
+                Console.WriteLine("Exception: " + ex.Message);
+            }
+            return null;
         }
     }
 }
