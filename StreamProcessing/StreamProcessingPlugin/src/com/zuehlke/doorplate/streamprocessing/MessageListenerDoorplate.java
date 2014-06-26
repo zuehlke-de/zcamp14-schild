@@ -1,5 +1,7 @@
 package com.zuehlke.doorplate.streamprocessing;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -12,19 +14,22 @@ import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.Response;
 
 import com.google.gson.Gson;
-import com.zuehlke.camp2014.iot.brokers.schild.domain.LocationUpdate;
+import com.zuehlke.camp2014.iot.brokers.schild.domain.UpdateLocation;
 import com.zuehlke.camp2014.iot.brokers.schild.domain.Move;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class MessageListenerDoorplate {
 
-	public static final String BASE_URI = "http://localhost:9200"; 
+	public static final String BASE_URI = "http://localhost:9200";
+	
+	private DateFormat dateFormat;
 	
 	private WebTarget target;
 	
 	public MessageListenerDoorplate() {
 		Client c = ClientBuilder.newClient();
         target = c.target(MessageListenerDoorplate.BASE_URI);
+        dateFormat = new SimpleDateFormat("");
 	}
 
 	/**
@@ -110,7 +115,25 @@ public class MessageListenerDoorplate {
 	 * The update is stored in ElasticSearch.
 	 * @param move The move object
 	 */
-	public void processLocationUpdate(LocationUpdate update) {
-		
+	public void processLocationUpdate(UpdateLocation update) {
+		String userId = update.getUserId();
+		String plateId = update.getPlateId();
+		Map userDocument = getUserDeviceDocumentForUserId(userId);
+		String userDocId = "blah"; // TODO
+		String doorPlateSerial = update.getPlateId();
+		String doorPlateDocId = getDoorPlateDeviceIdForSerialNo(doorPlateSerial);
+		System.out.println(target.path("schild/telemetrymessage").queryParam("parent", userDocId).request().post(Entity.json(
+				"{\"payload\": \"{'plateId':'" + plateId + "'}\"," +
+				"\"senderId\": \"userId\"," +
+				"\"timestamp\": \"2014/06/25 16:10:00\"}")));
+
+	}
+	
+	private Map getUserDeviceDocumentForUserId(String userId) {
+		return new HashMap<String, Object>();
+	}
+	
+	private String getDoorPlateDeviceIdForSerialNo(String doorPlateSerial) {
+		return "1";
 	}
 }
