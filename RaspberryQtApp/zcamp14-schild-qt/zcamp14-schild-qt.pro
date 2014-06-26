@@ -2,12 +2,14 @@
 QML_IMPORT_PATH =
 
 HEADERS += update.h \
-           Ble.h
+           Ble.h \
+    occupantlistmodel.h
 
 # The .cpp file which was generated for your project. Feel free to hack it.
 SOURCES += main.cpp \
            update.cpp \
-           Ble.cpp
+           Ble.cpp \
+    occupantlistmodel.cpp
 
 RESOURCES += qml.qrc
 
