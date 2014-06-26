@@ -1,4 +1,4 @@
-package com.zuehlke.doorplate.streamprocessing;
+package com.zuehlke.camp2014.schild.siegfried.logic;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -14,8 +14,9 @@ import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.Response;
 
 import com.google.gson.Gson;
-import com.zuehlke.camp2014.iot.brokers.schild.domain.UpdateLocation;
-import com.zuehlke.camp2014.iot.brokers.schild.domain.Move;
+import com.zuehlke.camp2014.schild.siegfried.domain.Move;
+import com.zuehlke.camp2014.schild.siegfried.domain.UpdateLocation;
+
 
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class MessageListenerDoorplate {
