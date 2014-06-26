@@ -23,7 +23,7 @@ namespace LyncClientAgent
                 Self self = LyncClient.GetClient().Self;
                 var list = new List<KeyValuePair<PublishableContactInformationType, object>>();
                 list.Add(new KeyValuePair<PublishableContactInformationType, object>(PublishableContactInformationType.LocationName, location));
-                list.Add(new KeyValuePair<PublishableContactInformationType, object>(PublishableContactInformationType.PersonalNote, location));
+                list.Add(new KeyValuePair<PublishableContactInformationType, object>(PublishableContactInformationType.PersonalNote, "Hier ist mein Schild: " + location));
                 self.EndPublishContactInformation(self.BeginPublishContactInformation(list, null, null));
                 Console.WriteLine("Setting Location: {0}", location);
                 _lastLocation = location;
