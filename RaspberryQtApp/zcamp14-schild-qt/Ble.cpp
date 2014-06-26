@@ -23,13 +23,14 @@ void Ble::processTimer() {
     if (counter_ > 4) {
         counter_ = 0;
         emit occupantNamesInvalidated();
-    } else if (counter_ == 3) {
-        output << "Roomname #" << counter_;
-        emit roomNameUpdate(QString(output.str().c_str()));
     }
     else {
         output << "Name #" << counter_;
         emit occupantNameUpdate(QString(output.str().c_str()));
+    }
+    if (counter_ == 3) {
+            output << "Roomname #" << counter_;
+            emit roomNameUpdate(QString(output.str().c_str()));
     }
 }
 

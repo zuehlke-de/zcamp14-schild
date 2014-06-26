@@ -24,8 +24,6 @@ public slots:
     void ClearOccupantNames();
     void ReceiveOccupantName(QString occupantName);
 
-protected:
-
 private:
     QStringList stringList;
 };
