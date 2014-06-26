@@ -3,7 +3,6 @@ var util = require('util');
 
 var express = require('express');
 var rest = require('restless');
-
 var app = express();
 
 app.get('/test', test);
@@ -31,8 +30,8 @@ function sendLocation(request, response) {
 
 function queryAndSendLocation(username, response) {
     var query = JSON.parse(util.format(JSON.stringify(conf.queryString), username));
-    console.log("Using query: " + query);
-    rest.post(" http://ec2-54-74-5-94.eu-west-1.compute.amazonaws.com:9200/db/_search"
+    console.log("Using query: " + JSON.stringify(query));
+    rest.post(conf.searchUrl
     , { data: query }, function (error, innerData, innerResponse) {
         if (error instanceof Error) {
             console.log('Error: ' + error.message);
@@ -43,15 +42,30 @@ function queryAndSendLocation(username, response) {
                 console.log("Location not availabe for user: " + username);
                 response.send(404);
             } else {
+                var username = innerData.hits.hits[0]._source.senderId;
+                try {
+                    var plateId = JSON.parse(innerData.hits.hits[0]._source.payload).plateId;
+                } catch (err) {
+                    console.log("****####ERROR####*****\nplateId data is no valid JSON: (" + err + ")\n****####ERROR####*****");
+                }
                 console.log("received query response: " + JSON.stringify(innerData));
-                response.send(200,
-                {
-                    'username': innerData.hits.hits[0]._source.senderId,
-                    'location': innerData.hits.hits[0]._source.payload
-                });
+                    translatePlateIdAndSendLocation(username, plateId, response);
+                
             }
         }
     });
+    function translatePlateIdAndSendLocation(username, plateId, response) {
+        var url = util.format(conf.translatePlateUrl,plateId);
+
+        rest.get(url, function (error, innerData) {
+            var location = "unknown location: plateId " + plateId;
+            if (innerData.found) {
+                location = innerData._source.name;
+            }
+            response.send(200,{ 'username': username,'location': location});
+        });
+
+    }
     
 }
 
