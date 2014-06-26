@@ -1,15 +1,17 @@
-package com.zuehlke.camp2014.schild.siegfried.domain;
-
-import com.google.common.base.Objects;
+package com.zuehlke.camp2014.iot.brokers.schild.domain;
 
 public class UpdateLocation {
+	String userId;
+	String plateId;
+
 	public UpdateLocation() {
-		super();
+		this.userId = "";
 		this.plateId = "";
 	}
-	
-	public UpdateLocation(String plateId) {
+
+	public UpdateLocation(String userId, String plateId) {
 		super();
+		this.userId = userId;
 		this.plateId = plateId;
 	}
 
@@ -29,13 +31,8 @@ public class UpdateLocation {
 		this.plateId = plateId;
 	}
 
-	String plateId;
-	String userId;
-	
 	public String toString() {
-		return Objects.toStringHelper(this)
-		.add("plateId", plateId)
-		.add("userId", userId)
-		.toString();
+		return userId + ", " + plateId;
 	}
+
 }

@@ -1,7 +1,5 @@
 package com.zuehlke.zegcamp14tuerschild;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.ArrayList;
@@ -22,6 +20,7 @@ import android.content.Intent;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
 public class CommunicationService extends Service {
@@ -31,9 +30,18 @@ public class CommunicationService extends Service {
     private BluetoothDevice mBluetoothDevice;
     private Handler mHandler = new Handler();
     private boolean mScanning = false;
-    
+    private BluetoothGattCharacteristic configCharacteristic;
+    private BluetoothGattCharacteristic revisionNumberCharacteristic;
+    private BluetoothGattCharacteristic personCharacteristic;
+
     //private String mBluetoothDeviceAddress = "6c00e78a-1b9c-4330-8731-54eb46af7c9f";
-    private String mBluetoothDeviceAddress = "13370000-4200-1000-8000-00805f9b34fb";
+    private String doorPlateServiceUUID = "13370000-4200-1000-8000-00805f9b34fb";
+    private String configCharacteristicUUID = "13370000-4201-1000-8000-00805f9b34fb";
+    private String revisionNumberCharacteristicUUID = "13370000-4202-1000-8000-00805f9b34fb";
+    private String personCharacteristicUUID = "13370000-4203-1000-8000-00805f9b34fb";
+    
+    private short doorPlateID;
+
     //private String mBluetoothDeviceAddress = "ffffffff-ffff-ffff-ffff-fffffffffff0";
     
     //UUID=13370000-4201-1000-8000-00805f9b34fb
@@ -50,6 +58,7 @@ public class CommunicationService extends Service {
 	}
 	
 	private List<UUID> parseUUIDs(final byte[] advertisedData) {
+		//Log.i(TAG, "adv: " + Arrays.toString(advertisedData));
 	    List<UUID> uuids = new ArrayList<UUID>();
 
 	    int offset = 0;
@@ -131,9 +140,7 @@ public class CommunicationService extends Service {
 	
 
     private void scanLeDevice() {
-    	
-    	//Log.i(TAG, mBluetoothDevice+" schneuz");
-    	
+    	    	
         // Stops scanning after a pre-defined scan period.
         mHandler.postDelayed(new Runnable() {
             @Override
@@ -163,13 +170,14 @@ public class CommunicationService extends Service {
 		@Override
 		public void onLeScan(BluetoothDevice device, int rssi, byte[] scanRecord) {
 			List<UUID> scannedUUIDs = CommunicationService.this.parseUUIDs(scanRecord);
-			Log.i(TAG, "Devices found: "+scannedUUIDs);
-			for(UUID uuid : scannedUUIDs) {
-				if(uuid.toString().equals(mBluetoothDeviceAddress)) {
-					Log.i(TAG, "Device selected: "+uuid+" ("+device.getName()+")");
+			//Log.i(TAG, "Devices found: "+scannedUUIDs);
+			for (UUID uuid : scannedUUIDs) {
+				if (uuid.toString().equals(doorPlateServiceUUID)) {
+					updateRoomNameDisplay(device.getName());
+
+					Log.i(TAG, "Device selected: "+uuid+" ("+device.getName()+") with RSSI "+rssi);
 					mBluetoothDevice = device;
 					
-					//scanLeDevice(false);
 					mBluetoothAdapter.stopLeScan(bleScanCallback);
 					mScanning = false;
 					
@@ -196,7 +204,6 @@ public class CommunicationService extends Service {
         @Override
         public void onConnectionStateChange(BluetoothGatt gatt, int status,
                 int newState) {
-            Log.i(TAG, BluetoothGatt.GATT_INSUFFICIENT_AUTHENTICATION+", "+status+", "+newState);
             if (newState == BluetoothProfile.STATE_CONNECTED) {
                 //intentAction = ACTION_GATT_CONNECTED;
                 //mConnectionState = STATE_CONNECTED;
@@ -238,15 +245,27 @@ public class CommunicationService extends Service {
         // New services discovered
         public void onServicesDiscovered(BluetoothGatt gatt, int status) {
             if (status == BluetoothGatt.GATT_SUCCESS) {
-                Log.i(TAG, "onServicesDiscovered received: " + status);
-                for(BluetoothGattService service : gatt.getServices()) {
-                	for(BluetoothGattCharacteristic characteristic :service.getCharacteristics()) {
-                		if(characteristic.getUuid().toString().equals("13370000-4201-1000-8000-00805f9b34fb")) {
-                		//if(characteristic.getUuid().toString().equals("35c7560e-0fa4-4802-bdc7-7e68f22a4bef")) {
-                			Log.i(TAG, "perform read on characteristic: "+characteristic.getProperties());
-                			//gatt.readCharacteristic(characteristic);
+                Log.i(TAG, "onServicesDiscovered received: " + status + " #services: " + gatt.getServices().size());
+                for (BluetoothGattService service : gatt.getServices()) {
+                	if (service.getUuid().toString().equals(doorPlateServiceUUID)) {
+                		// Save characteristics
+                    	for (BluetoothGattCharacteristic characteristic :service.getCharacteristics()) {
+                    		if (characteristic.getUuid().toString().equals(configCharacteristicUUID)) {
+                    			configCharacteristic = characteristic;
+                    		}
+                    		else if (characteristic.getUuid().toString().equals(revisionNumberCharacteristicUUID)) {
+                    			revisionNumberCharacteristic = characteristic;
+                    		}
+                    		else if (characteristic.getUuid().toString().equals(personCharacteristicUUID)) {
+                    			personCharacteristic = characteristic;
+                    		}
+                    	}
+                    	// Read revision number
+                    	gatt.readCharacteristic(configCharacteristic);
+                	}
+                	
                 			
-                			ByteBuffer buffer = ByteBuffer.allocate(2);
+                			/*ByteBuffer buffer = ByteBuffer.allocate(2);
                 			buffer.putShort(Short.reverseBytes((short)1));
                 			
                 			byte[] id = buffer.array();
@@ -263,12 +282,12 @@ public class CommunicationService extends Service {
                 			byte payload[] = outputStream.toByteArray();
                 			
                 			characteristic.setValue(payload);
-                			gatt.writeCharacteristic(characteristic);
-                		}
-                	}
+                			gatt.writeCharacteristic(characteristic);*/
+
                 }
                 //broadcastUpdate(ACTION_GATT_SERVICES_DISCOVERED);
-            } else {
+            } 
+            else {
                 Log.w(TAG, "onServicesDiscovered received: " + status);
             }
         }
@@ -278,27 +297,74 @@ public class CommunicationService extends Service {
         public void onCharacteristicRead(BluetoothGatt gatt,
                 BluetoothGattCharacteristic characteristic,
                 int status) {
-
-        	//Log.i(TAG, "characteristic read:"+characteristic.getStringValue(0));
+        	
         	if (status == BluetoothGatt.GATT_SUCCESS) {
-            	Log.i(TAG, "characteristic read:"+characteristic.getStringValue(0));
-                //broadcastUpdate(ACTION_DATA_AVAILABLE, characteristic);
+        		if (characteristic == configCharacteristic) {
+                	Log.i(TAG, "config read: " + characteristic.getStringValue(0));
+                	// TODO: parse data
+                	// doorPlateID = ...
+                	gatt.readCharacteristic(revisionNumberCharacteristic);
+            	}
+            	if (characteristic == revisionNumberCharacteristic) {
+            		long doorPlateRevisionNumber = characteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_UINT32, 0);
+                	Log.i(TAG, "revision number read: " + doorPlateRevisionNumber);
+                	// TODO: if doorPlateRevisionNumber < my currently saved revision number for that room
+                	// write update to door plate
+            	}
             }
+        	else {
+        		Log.i(TAG, "read unsuccessful: " + status);
+        	}
         }
 
 		@Override
 		public void onCharacteristicWrite(BluetoothGatt gatt,
 				BluetoothGattCharacteristic characteristic, int status) {
-			// TODO Auto-generated method stub
-        	Log.i(TAG, "characteristic write status:"+status);
-		}
-        
-        
+        	Log.i(TAG, "characteristic write status: "+status);
+
+			if (status == BluetoothGatt.GATT_SUCCESS) {
+        		if (characteristic == configCharacteristic) {
+                	Log.i(TAG, "config write successful");
+            	}
+        		else if (characteristic == revisionNumberCharacteristic) {
+                	Log.i(TAG, "revision number write successful");
+                	// TODO: PUT /updates/xxxx/status
+            	}
+        		else if (characteristic == personCharacteristic) {
+                	Log.i(TAG, "person write successful");
+            	} 
+			}
+			else {
+        		if (characteristic == configCharacteristic) {
+                	Log.i(TAG, "config write unsuccessful");
+                	// TODO: close connection?
+            	}
+        		else if (characteristic == revisionNumberCharacteristic) {
+                	Log.i(TAG, "revision number write unsuccessful");
+                	// TODO: close connection?
+                	// TODO: repeat later
+            	}
+        		else if (characteristic == personCharacteristic) {
+                	Log.i(TAG, "person write unsuccessful");
+                	// TODO: close connection?
+            	} 
+			}
+		}  
     };
 
 	@Override
 	public void onDestroy() {
         Log.i(TAG, "destroyed.");
 		super.onDestroy();
+	}
+	
+	private void updateRoomNameDisplay(String roomName) {
+		Intent intent = new Intent(MainActivity.UPDATE_ROOM_NAME);
+	    intent.putExtra(MainActivity.EXTRA_ROOM_NAME, roomName);
+	    LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
+	}
+	
+	private long getRevisionNumberFromDoorPlate() {
+		return 0;
 	}
 }
