@@ -29,6 +29,11 @@
 		<artifactId>jersey-json</artifactId>
 		<version>1.7</version>
 	</dependency>
+	<dependency>
+		<groupId>com.zuehlke.camp2014.iot</groupId>
+		<artifactId>core</artifactId>
+		<version>0.1-SNAPSHOT</version>
+	</dependency>
   </dependencies>
   <build>
     <plugins>

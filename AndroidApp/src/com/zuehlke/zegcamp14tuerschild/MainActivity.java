@@ -29,7 +29,7 @@ public class MainActivity extends Activity {
             getFragmentManager().beginTransaction().add(R.id.container, new PlaceholderFragment()).commit();
         }
          
-        /*//RESTManager.getInstance().testGet(this);
+        //RESTManager.getInstance().testGet(this);
         if (!getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)) {
             Toast.makeText(this, "BLE NOT SUPPORTED", Toast.LENGTH_SHORT).show();
             finish();
@@ -43,21 +43,6 @@ public class MainActivity extends Activity {
             Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
             startActivityForResult(enableBtIntent, 0);
         }
-         
-        System.out.println(mBluetoothAdapter);
-        mBluetoothAdapter.startLeScan(new BluetoothAdapter.LeScanCallback() {
- 
-            @Override
-            public void onLeScan(final BluetoothDevice device, int rssi, byte[] scanRecord) {
-                runOnUiThread(new Runnable() {
-                       @Override
-                       public void run() {
-                            Toast.makeText(MainActivity.this, device.toString(), Toast.LENGTH_SHORT).show();
-                       }
-                   });
-            }
-             
-        });*/
         
     	Intent intent = new Intent(this, CommunicationService.class);
     	this.startService(intent);
