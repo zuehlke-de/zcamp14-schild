@@ -10,6 +10,7 @@ Update::Update()
 }
 
 void Update::ReceiveRoomName(QString roomName) {
+    std::cout << "Update::ReceiveRoomName()" << std::endl;
     m_roomName = roomName;
 }
 
@@ -19,7 +20,7 @@ void Update::ClearOccupantNames() {
 }
 
 void Update::ReceiveOccupantName(QString occupantName) {
-    std::cout << "Update::ReceiveOccupantName()" << std::endl;
+    std::cout << "Update::ReceiveOccupantName(): " << occupantName.toUtf8().constData() << std::endl;
     m_occupantNames.append(occupantName);
 }
 
