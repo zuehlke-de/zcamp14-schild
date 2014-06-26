@@ -26,23 +26,23 @@ public class UpdateManager {
 	}
 	
 	public void getUpdateDataForPlate(final int plateId, final RequestUpdateDataCallback successCallback) {
-		if(dataStore == null) {
+		//if(dataStore == null) {
 			RESTManager.getInstance().requestGetUpdatesPending(new RESTCallbacks() {
 				@Override
 				public void onSuccess(JSONArray response) {
 					successCallback.onSuccess((dataStore.get(plateId)));
 				}
 			});
-		}
-		else {
-			successCallback.onSuccess((dataStore.get(plateId)));
-		}
+		//}
+		//else {
+		//	successCallback.onSuccess((dataStore.get(plateId)));
+		//}
 	}
 	
 	public void handleUpdate(JSONArray update) {
-		if(dataStore == null) {
+		//if(dataStore == null) {
 			dataStore = new SparseArray<JSONObject>();
-		}
+		//}
 		for(int i=0;i<update.length();i++) {
 			try {
 				dataStore.put(update.getJSONObject(i).getInt("plateId"), update.getJSONObject(i));
