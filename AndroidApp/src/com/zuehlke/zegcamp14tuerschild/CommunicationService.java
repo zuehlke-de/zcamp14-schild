@@ -174,8 +174,8 @@ public class CommunicationService extends Service {
             	}
             	if (maxEntry != null) {
     				updateRoomNameDisplay(maxEntry.getKey());
-
             	}
+            	discoveredDevices = new HashMap<String, Integer>();
 				Handler handler = new Handler(Looper.getMainLooper());
 				handler.post(new Runnable() {
 
