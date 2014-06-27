@@ -1,9 +1,8 @@
 package com.zuehlke.camp2014.schild.siegfried;
 
-import java.util.Date;
 
 public class IdGenerator {
-	private static long lastUpdateId = new Date().getTime();
+	private static long lastUpdateId = 1;
 	
 	public static final String COMPONENT_ID = "schild2";
 	
