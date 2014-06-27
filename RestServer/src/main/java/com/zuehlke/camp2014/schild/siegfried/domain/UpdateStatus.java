@@ -8,6 +8,11 @@ public class UpdateStatus {
 		this.status = status;
 	}
 
+	public UpdateStatus() {
+		super();
+		this.status = "";
+	}
+	
 	public String getStatus() {
 		return status;
 	}
