@@ -220,7 +220,7 @@ public class CommunicationService extends Service {
 			List<UUID> scannedUUIDs = CommunicationService.this.parseUUIDs(scanRecord);
 			//Log.i(TAG, "Devices found: "+scannedUUIDs);
 			for (UUID uuid : scannedUUIDs) {
-				if (uuid.toString().equals(doorPlateServiceUUID) && device.getName().equals("rpi-kahe")) {
+				if (uuid.toString().equals(doorPlateServiceUUID) /*&& device.getName().equals("rpi-kahe")*/) {
 					
 					discoveredDevices.put(device.getAddress(), rssi);
 

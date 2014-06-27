@@ -40,7 +40,7 @@
         android:layout_alignRight="@+id/userName"
         android:layout_below="@+id/textView3"
         android:layout_marginTop="23dp"
-        android:text="room name"
+        android:text=""
         android:textAppearance="?android:attr/textAppearanceLarge" />
 
     <Button

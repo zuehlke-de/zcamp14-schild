@@ -155,18 +155,23 @@ public class MainActivity extends Activity {
     }
     
     public void moveToCurrentRoom(View view) {
-    	RESTManager.getInstance().requestSetMoves(this, userName, getPlateId());;
+		if (longRoomName != null && longRoomName.length() > 5 && userName != null && userName.length() > 0) {
+	    	RESTManager.getInstance().requestSetMoves(this, userName, getPlateId());
+		}
     }
     
     public int getPlateId() {
-     	String plateIdString = longRoomName.substring(5);
-     	int plateId = 0;
-    	try {
-    		plateId = Integer.parseInt(plateIdString);
-    	} catch (NumberFormatException e) {
-    		e.printStackTrace();
+    	if (longRoomName != null && longRoomName.length() > 5) {
+         	String plateIdString = longRoomName.substring(5);
+         	int plateId = 0;
+        	try {
+        		plateId = Integer.parseInt(plateIdString);
+        	} catch (NumberFormatException e) {
+        		e.printStackTrace();
+        	}
+         	return plateId;
     	}
-     	return plateId;
+    	return 0;
     }
 
 }
