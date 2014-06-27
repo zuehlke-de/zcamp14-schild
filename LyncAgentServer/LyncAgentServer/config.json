@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 {
    "port":80,
    "searchUrl": "http://ec2-54-74-5-94.eu-west-1.compute.amazonaws.com:9200/db/_search",
@@ -18,3 +19,25 @@
       "facets":{ }
    }
 }
+=======
+{
+   "port":80,
+   "searchUrl": "http://ec2-54-74-5-94.eu-west-1.compute.amazonaws.com:9200/db/_search",
+   "translatePlateUrl": "http://ec2-54-74-5-94.eu-west-1.compute.amazonaws.com:9200/db/location/%s",
+   "queryString":{
+      "query":{
+         "bool":{
+            "must":[
+               { "term": {"location.persons":"%s"} }
+            ]
+         }
+      },
+      "from":0,
+      "size":1,
+      "sort":[
+			  
+      ],
+      "facets":{ }
+   }
+}
+>>>>>>> 628def7ddb923f2d0cd1c34816a646bf51f39cb9
