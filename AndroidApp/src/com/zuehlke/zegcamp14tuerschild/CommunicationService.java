@@ -222,7 +222,7 @@ public class CommunicationService extends Service {
 			for (UUID uuid : scannedUUIDs) {
 				if (uuid.toString().equals(doorPlateServiceUUID) /*&& device.getName().equals("rpi-kahe")*/) {
 					
-					discoveredDevices.put(device.getAddress(), rssi);
+					discoveredDevices.put(device.getName(), rssi); // TODO: normally not an ID
 
 					Log.i(TAG, "Device selected: "+uuid+" ("+device.getName()+") with RSSI "+rssi);
 					mBluetoothDevice = device;
@@ -413,7 +413,7 @@ public class CommunicationService extends Service {
     							@Override
     							public void onSuccess(JSONObject object) {
     								try {
-    									if(object.getInt("updateId") >= connectedDoorPlateRevisionNumber) {// TODO: remove =
+    									if(object.getInt("updateId") > connectedDoorPlateRevisionNumber) {// TODO: remove = if there
     										JSONArray names = object.getJSONArray("names");
     										doorPlateRevisionNumber = object.getInt("updateId");
     										for(int i=0;i<names.length();i++) {
