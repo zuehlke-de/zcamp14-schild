@@ -2,11 +2,14 @@ package com.zuehlke.zegcamp14tuerschild;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import org.json.JSONArray;
@@ -55,6 +58,8 @@ public class CommunicationService extends Service {
     private int BTLE_WRITE_FLAG = 0;
     private static final int BTLE_WRITE_OK = 0;
     private static final int BTLE_WRITE_ERROR = 1;
+    
+    private Map<String, Integer> discoveredDevices = new HashMap<String, Integer>();
 
     //private String mBluetoothDeviceAddress = "ffffffff-ffff-ffff-ffff-fffffffffff0";
     
@@ -72,7 +77,6 @@ public class CommunicationService extends Service {
 	}
 	
 	private List<UUID> parseUUIDs(final byte[] advertisedData) {
-		//Log.i(TAG, "adv: " + Arrays.toString(advertisedData));
 	    List<UUID> uuids = new ArrayList<UUID>();
 
 	    int offset = 0;
@@ -159,7 +163,37 @@ public class CommunicationService extends Service {
         mHandler.postDelayed(new Runnable() {
             @Override
             public void run() {
-                
+            	
+            	// Get door plate with the strongest signal
+            	System.out.println("hashmap: " + discoveredDevices);
+            	Map.Entry<String, Integer> maxEntry = null;
+            	for (Map.Entry<String, Integer> entry : discoveredDevices.entrySet()) {
+            	    if (maxEntry == null || entry.getValue().compareTo(maxEntry.getValue()) > 0) {
+            	        maxEntry = entry;
+            	    }
+            	}
+            	if (maxEntry != null) {
+    				updateRoomNameDisplay(maxEntry.getKey());
+            	}
+            	discoveredDevices = new HashMap<String, Integer>();
+				Handler handler = new Handler(Looper.getMainLooper());
+				handler.post(new Runnable() {
+
+					@Override
+					public void run() {
+						if (MainActivity.longRoomName != null && MainActivity.longRoomName.length() > 5 && MainActivity.userName != null && MainActivity.userName.length() > 0) {
+							String plateId = MainActivity.longRoomName.substring(5);
+					    	try {
+			                	RESTManager.getInstance().requestSetLocation(CommunicationService.this, MainActivity.userName, Integer.parseInt(plateId));
+					    	} catch (NumberFormatException e) {
+					    		e.printStackTrace();
+					    	}
+		                	// TODO: handle error, retry
+						}
+					}
+					
+				});
+
                 if(mScanning) {
                     mBluetoothAdapter.stopLeScan(bleScanCallback);
                     mScanning = false;
@@ -186,8 +220,9 @@ public class CommunicationService extends Service {
 			List<UUID> scannedUUIDs = CommunicationService.this.parseUUIDs(scanRecord);
 			//Log.i(TAG, "Devices found: "+scannedUUIDs);
 			for (UUID uuid : scannedUUIDs) {
-				if (uuid.toString().equals(doorPlateServiceUUID) && device.getName().equals("rpi-kahe")) {
-					updateRoomNameDisplay(device.getName());
+				if (uuid.toString().equals(doorPlateServiceUUID) /*&& device.getName().equals("rpi-kahe")*/) {
+					
+					discoveredDevices.put(device.getName(), rssi); // TODO: normally not an ID
 
 					Log.i(TAG, "Device selected: "+uuid+" ("+device.getName()+") with RSSI "+rssi);
 					mBluetoothDevice = device;
@@ -220,13 +255,37 @@ public class CommunicationService extends Service {
     			mBluetoothGatt.writeCharacteristic(revisionNumberCharacteristic);
     		}
     		else {
-    			//namesToWrite.pop()
     			String name = namesToWrite.pop();
     			System.out.println("Write person "+name);
-    			personCharacteristic.setValue(name);
+    			try {
+					personCharacteristic.setValue(name.getBytes("ASCII"));
+				} catch (UnsupportedEncodingException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
     			mBluetoothGatt.writeCharacteristic(personCharacteristic);
     		}
     	}
+    	else {
+    		closeConnection();
+    	}
+    }
+    
+    private void closeConnection() {
+    	mBluetoothDevice = null;
+        
+        Handler handler = new Handler(Looper.getMainLooper());
+		handler.post(new Runnable() {
+
+			@Override
+			public void run() {
+                mBluetoothGatt.close();
+
+                //mBluetoothAdapter = mBluetoothManager.getAdapter();
+				//mBluetoothAdapter.startLeScan(bleScanCallback);
+			}
+			
+		});
     }
     
     private final BluetoothGattCallback mGattCallback = new BluetoothGattCallback() {
@@ -246,27 +305,7 @@ public class CommunicationService extends Service {
                 //intentAction = ACTION_GATT_DISCONNECTED;
                 //mConnectionState = STATE_DISCONNECTED;
                 Log.i(TAG, "Disconnected from GATT server.");
-                mBluetoothDevice = null;
-                //scanLeDevice(true);
-                
-                
-                /*Handler handler = new Handler(Looper.getMainLooper());
-				handler.post(new Runnable() {
-
-					@Override
-					public void run() {
-		                mBluetoothGatt.close();
-
-		                mBluetoothAdapter = mBluetoothManager.getAdapter();
-						mBluetoothAdapter.startLeScan(bleScanCallback);
-					}
-					
-				});*/
-				
-
-
-
-                //broadcastUpdate(intentAction);
+                closeConnection();
             }
             
         }
@@ -296,7 +335,7 @@ public class CommunicationService extends Service {
             			buffer.putShort(Short.reverseBytes((short)42));
             			
             			byte[] id = buffer.array();
-            			byte[] roomName = "BESTES SCHILD".getBytes();
+            			byte[] roomName = "Raum 42".getBytes();
             			
             			ByteArrayOutputStream outputStream = new ByteArrayOutputStream( );
             			try {
@@ -374,13 +413,16 @@ public class CommunicationService extends Service {
     							@Override
     							public void onSuccess(JSONObject object) {
     								try {
-    									if(object.getInt("updateId") > connectedDoorPlateRevisionNumber) {
+    									if(object.getInt("updateId") > connectedDoorPlateRevisionNumber) {// TODO: remove = if there
     										JSONArray names = object.getJSONArray("names");
     										doorPlateRevisionNumber = object.getInt("updateId");
     										for(int i=0;i<names.length();i++) {
     											namesToWrite.add(names.getString(i));
     										}
     										writeNamesToConnectedPlate();
+    									}
+    									else {
+    										closeConnection();
     									}
     								} catch (JSONException e) {
     									e.printStackTrace();
@@ -396,6 +438,7 @@ public class CommunicationService extends Service {
             }
         	else {
         		Log.i(TAG, "read unsuccessful: " + status);
+        		
         	}
         }
 
@@ -407,10 +450,22 @@ public class CommunicationService extends Service {
 			if (status == BluetoothGatt.GATT_SUCCESS) {
         		if (characteristic == configCharacteristic) {
                 	Log.i(TAG, "config write successful");
+                	//closeConnection();
             	}
         		else if (characteristic == revisionNumberCharacteristic) {
                 	Log.i(TAG, "revision number write successful");
-                	// TODO: PUT /updates/xxxx/status
+
+    				Handler handler = new Handler(Looper.getMainLooper());
+    				handler.post(new Runnable() {
+
+    					@Override
+    					public void run() {
+    	                	RESTManager.getInstance().requestSetUpdateStatus(CommunicationService.this, doorPlateRevisionNumber, "processed");
+    	                	// TODO: handle error, retry
+    					}
+    					
+    				});
+                	closeConnection();
             	}
         		else if (characteristic == personCharacteristic) {
                 	Log.i(TAG, "person write successful");
@@ -420,11 +475,11 @@ public class CommunicationService extends Service {
 			else {
         		if (characteristic == configCharacteristic) {
                 	Log.i(TAG, "config write unsuccessful");
-                	// TODO: close connection?
+                	closeConnection();
             	}
         		else if (characteristic == revisionNumberCharacteristic) {
                 	Log.i(TAG, "revision number write unsuccessful");
-                	// TODO: close connection?
+                	closeConnection();
                 	// TODO: repeat later
             	}
         		else if (characteristic == personCharacteristic) {

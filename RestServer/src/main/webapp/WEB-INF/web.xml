@@ -10,11 +10,11 @@
 	<servlet>
 		<servlet-name>jersey-serlvet</servlet-name>
 		<servlet-class>
-                     com.sun.jersey.spi.container.servlet.ServletContainer
+                     org.glassfish.jersey.servlet.ServletContainer
                 </servlet-class>
 		<init-param>
-		     <param-name>com.sun.jersey.config.property.packages</param-name>
-		     <param-value>com.zuehlke.camp2014.schild.siegfried</param-value>
+			<param-name>javax.ws.rs.Application</param-name>
+      		<param-value>com.zuehlke.camp2014.schild.siegfried.Siegfried</param-value>
 		</init-param>
 		<init-param>
 			<param-name>com.sun.jersey.api.json.POJOMappingFeature</param-name>

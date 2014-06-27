@@ -11,15 +11,7 @@ import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.Response;
 
-import com.google.common.collect.Sets;
 import com.google.gson.Gson;
-import com.zuehlke.camp2014.iot.core.ComponentFactory;
-import com.zuehlke.camp2014.iot.core.lib.MessageFactory;
-import com.zuehlke.camp2014.iot.core.store.DynamoDBStore;
-import com.zuehlke.camp2014.iot.model.Identifier;
-import com.zuehlke.camp2014.iot.model.internal.Command;
-import com.zuehlke.camp2014.iot.model.internal.MessageBuffer;
-import com.zuehlke.camp2014.schild.siegfried.IdGenerator;
 import com.zuehlke.camp2014.schild.siegfried.domain.Move;
 import com.zuehlke.camp2014.schild.siegfried.domain.Update;
 import com.zuehlke.camp2014.schild.siegfried.domain.UpdateLocation;
@@ -124,34 +116,8 @@ public class MessageListenerDoorplate {
 		return new Update(null, (String) roomMap.get("plateId"), persons, null);
 	}
 	
-	private void sendToCloud(Update update) {
-		final String newUpdateId = IdGenerator.getNext();
-		final Update newUpdate = new Update(
-				newUpdateId,
-				update.getPlateId(),
-				update.getNames(),
-				"pending"
-				);
-		final String json = gson.toJson(newUpdate);
-		
-		DynamoDBStore<Identifier, MessageBuffer> store = new ComponentFactory(IdGenerator.COMPONENT_ID).getMessageBufferStore();
-		Command oldRoomMessage = MessageFactory.createCommand(
-				new Identifier("camp2014_schild", "siegfried"), 
-				Sets.<Identifier>newHashSet(new Identifier("camp2014_schild", newUpdate.getPlateId())), 
-				newUpdateId, 
-				json);
-		
-		List<MessageBuffer> msgBuffers = MessageFactory.createMessageBuffers(oldRoomMessage, "pending", newUpdateId, Long.parseLong(newUpdateId));
-		
-		for (MessageBuffer msgBuffer: msgBuffers) {
-			store.save(msgBuffer);
-		}
-		
-	}	
-	
 	private void fireUpdatesForOldAndNewRoom(Update oldRoom, Update newRoom) {
-		sendToCloud(oldRoom);
-		sendToCloud(newRoom);
+		// TODO: Store doorplate updates in DynamoDB
 	}
 	
 	/**
